@@ -37,11 +37,11 @@
 \ifthenelse{\equal{\DepartmentLines}{1}}
 {
     %   DepartmentLines == 1
-    \vskip 20pt
+    \vskip 12pt
 }
 {
     %   DepartmentLines == 2
-    \vskip 10pt
+    \vskip 7pt
 }
 
 \begin{center}
@@ -51,11 +51,11 @@
 \ifthenelse{\equal{\DepartmentLines}{1}}
 {
     %   DepartmentLines == 1
-    \vskip 20pt
+    \vskip 10pt
 }
 {
     %   DepartmentLines == 2
-    \vskip 10pt
+    \vskip 5pt
 }
 
 % Define multi line title
@@ -70,7 +70,7 @@
 
 \begin{center}
     \bfseries \zihao{-2}
-    \begin{tabularx}{.8\textwidth}{>{\fangsong}l X<{\centering}}
+    \begin{tabularx}{.95\textwidth}{>{\fangsong}l X<{\centering}}
         % If titles are too long for one row, please manually hardcode them in
         % multiple lines, as the english title example here.
         \ifthenelse{\equal{\TitleLines}{1}}
@@ -122,31 +122,32 @@
 \ifthenelse{\equal{\DepartmentLines}{1}}
 {
     %   DepartmentLines == 1
-    \vskip 20pt
+    \vskip 12pt
 }
 {
     %   DepartmentLines == 2
-    \vskip 10pt
+    \vskip 8pt
 }
 
 \begin{center}
     \zihao{4}
-    \begin{tabularx}{.6\textwidth}{>{\fangsong}l >{\fangsong}X<{\centering}}
+    \begin{tabularx}{.7\textwidth}{>{\fangsong}l >{\fangsong}X<{\centering}}
         \ifthenelse{\equal{\BlindReview}{true}}%
         {%
             申请人姓名： & \uline{\hfill} \\
-            指导教师：   & \uline{\hfill} \\
-            合作导师：   &  \uline{\hfill} \\
+            校内导师（组）：   & \uline{\hfill} \\
+            行业导师：   &  \uline{\hfill} \\
         }
         {%
             申请人姓名： & \uline{\hfill \StudentName \hfill} \\
-            指导教师：   & \uline{\hfill \AdvisorName \hfill} \\
-            合作导师：   &  \uline{\hfill \ColaboratorName \hfill} \\
+            校内导师（组）：   & \uline{\hfill \AdvisorName \hfill} \\
+            行业导师：   &  \uline{\hfill \ColaboratorName \hfill} \\
         }
         \ifthenelse{\equal{\Type}{design}}
         {%
-            专业学位类别：  &  \uline{\hfill \Major \hfill} \\
-            专业学位领域：  &  \uline{\hfill \Topic \hfill} \\
+            专业学位类别、领域：  &  \uline{\hfill \Major \hfill} \\
+            培养类型：  &  \uline{\hfill 全日制非定向 \hfill} \\
+            % 专业学位领域：  &  \uline{\hfill \Topic \hfill} \\
         }
         {%
             学科(专业)：  &  \uline{\hfill \Major \hfill} \\
@@ -166,12 +167,14 @@
 \ifthenelse{\equal{\DepartmentLines}{1}}
 {
     %   DepartmentLines == 1
-    \vskip 15pt
+    \vskip 12pt
 }
 {
     %   DepartmentLines == 2
-    \vskip 10pt
+    \vskip 7pt
 }
+
+\vspace{5pt}
 
 \begin{center}
     \zihao{-3} \bfseries
