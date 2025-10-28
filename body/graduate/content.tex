@@ -1,7 +1,83 @@
 \chapter{绪论}
 
 \section{研究背景及意义}
+近年来，随着智能控制、人工智能与机器人技术的迅速发展，自主智能无人系统也应运而生，极大程度地提高了人类的生活质量。无人机（Unmanned Aerial Vehicle, UAV）和无人车（Unmanned Ground Vehicle, UGV）作为重要的自主机器人，已经在多个领域展现出巨大的应用潜力。无人机以其高机动性和灵活性\cite{uavsurvey}，特别适用于执行空中任务，如农业维保\cite{agricultureusage}、灾害救援\cite{disasterusage}等；而无人地面车辆则依赖其高负载能力和稳定的地面作业性能，广泛应用于复杂地形中的运输、采集、巡检\cite{ugvinspection}等任务，应用场景如\autoref{fig:uav_ugv_usage}所示。
 
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapter_1/Agricultural_robots.jpg}
+        \caption{农业}
+        % \label{fig:sub_a}
+    \end{subfigure}
+    \hspace{0.01\textwidth}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapter_1/savesearch.png}
+        \caption{搜救}
+        % \label{fig:sub_b}
+    \end{subfigure}
+    \vspace{0.5cm}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapter_1/search_ugv.jpg}
+        \caption{巡检}
+        % \label{fig:sub_c}
+    \end{subfigure}
+    \hspace{0.01\textwidth}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapter_1/ugv_trans.jpg}
+        \caption{运输}
+        % \label{fig:sub_d}
+    \end{subfigure}
+
+    \caption{无人系统应用场景示意图}
+    \label{fig:uav_ugv_usage}
+\end{figure}
+
+进而，越来越多的研究和应用开始将无人机和无人车结合形成空地机器人系统，以充分发挥两者各自的优势，从而在执行任务时达到更高的效率和灵活性\cite{collaborationsurvey}。空地系统的主要优势体现在两个方面：无人机具备空中优势，能够快速覆盖大范围的区域，且不受地形的限制，可以轻松绕过障碍物进行环境感知和信息采集；而无人车则具备强大的地面操作能力，能够承载重物并在复杂地形中长时间稳定作业。因此，无人机和无人车的结合不仅可以弥补单一机器人在性能上的局限，还能在执行一些高负荷、高风险任务时，提供更高的安全性和可靠性。尽管空地协同系统具有显著的优势，但其在实际应用中仍面临不少挑战。尤其是在复杂环境中，为了能够实现真正的多机器人自主协同作业，状态估计、环境感知、轨迹规划和跟踪控制构成了移动机器人系统的核心功能模块，如何基于这些模块来实现多机器人系统内的准确定位和有效协同工作，仍面临诸多挑战。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapter_1/slam_lio.jpg}
+        \caption{LIO}
+        % \label{fig:sub_a}
+    \end{subfigure}
+    \hspace{0.01\textwidth}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapter_1/vio.jpg}
+        \caption{VIO}
+        % \label{fig:sub_b}
+    \end{subfigure}
+    \hspace{0.01\textwidth}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapter_1/uwb.jpg}
+        \caption{UWB定位系统}
+        % \label{fig:sub_c}
+    \end{subfigure}
+    \caption{定位与感知}
+    \label{fig:loc_and_per}
+\end{figure}
+
+在机器人定位感知领域，状态估计的精度直接影响其导航与任务执行能力，而环境感知的分辨率与全面性则决定了规划时可用地图信息的细节程度。目前，定位传感器的主流应用场景可分为室内与室外，使用场景如\autoref{fig:loc_and_per}所示。室外环境中，全球定位系统（Global Positioning System, GPS）\cite{gps} 因其广覆盖和便捷性成为首选方案。然而，在室内、城市峡谷等遮挡严重的GPS拒止环境中，其定位精度会严重下降甚至失效。针对室内高精度定位需求，运动捕捉系统\cite{motioncapture} 虽能提供支持，但其价格昂贵、部署复杂且严重依赖固定场地，使其难以应用于动态变化的未知环境。因此，移动机器人更常搭载激光雷达（Light Detection And Ranging, LiDAR）和视觉传感器，并与内置的惯性测量单元（Inertial Measurement Unit，IMU）的数据相融合，衍生出视觉惯性里程计（Visual Inertial Odometry，VIO）和激光雷达惯性里程计（LiDAR Inertial Odometry，LIO）等技术。这些技术的发展进一步催生了即时定位与建图技术（Simultaneous Localization and Mapping，SLAM），使机器人能利用机载传感器在未知环境中自主感知与定位。然而，当前SLAM技术多集中于单体智能，而面向（异构）机器人集群的协同SLAM仍面临诸多挑战，例如多机器人间的通信与数据共享、初始位姿标定、动态环境鲁棒性以及计算架构选择（集中式 vs 分布式）等。
+
+近年来，超宽带（Ultra-Wideband, UWB）技术\cite{uwbsurvey} 因其高精度、低功耗和强抗干扰性，逐渐成为GPS拒止环境下无人系统定位的研究热点。通过部署UWB基站与标签，可实现高精度定位。相较于运动捕捉系统，UWB成本显著降低，可作为一种“平价替代”方案，但其同样依赖于基站的精确部署，导致应用局限于已标定的固定场景。将UWB与多传感器融合（如VIO/LIO）是提升定位鲁棒性的有效途径。特别是在协同定位任务中，UWB测距结果可为多机器人之间提供相对位置约束。但其核心局限在于，UWB测量容易易受到环境遮挡的干扰。这导致当前多数方法或依赖于空旷无遮挡的环境测试，或依赖固定的UWB基站作为测距锚点进行融合，使其难以扩展到基础设施未知或环境复杂多变（如遮挡严重）的场景中去。
+
+在机器人运动规划领域，如何在复杂环境中生成安全且有效的行动轨迹，是实现多机器人系统自主导航的关键。为此，大量研究聚焦于异构机器人系统，尤其是空地协作系统，结合两类机器人协作执行探索\cite{agexplore1,agexplore2}与重建\cite{agmap1,agmap2}等任务，以利用各自的互补优势，弥补单一平台在整体性能与能力上的固有限制。
+
+在多机器人协作任务中，机器人通常依赖系统内的无线通信实现即时协调，但受限于机载通信设备功率与环境障碍物遮挡，可靠性常受影响。当部署于未知环境时，机器人之间的相互可观测则是实现相对定位与实时态势感知的关键。多数现有研究假设基于范围的通信模型\cite{communication1,communication2,communication3,communication4}，忽略障碍物可能阻断视线（Line of Sight, LoS）并降低无线信号质量的问题，进而引发系统内的通信与观测中断\cite{liu2023relative}。因此，一个核心挑战是在执行外部导航任务的同时，在存在障碍物的场景中保持机器人之间的 LoS 连接\cite{multirobotvis}。进一步地，当机器人部署于未知环境时，不可预知的障碍物会加剧对 LoS 连通的破坏；同时，传统连通性控制方法通常要求在多机器人之间构建一致且简洁的障碍物集合以描述周边环境，而在分布式感知与异构传感条件下实现这一点并不容易\cite{multirobotvis}。
+
+综上所述，异构多机器人在未知环境中的相对定位与协同规划仍存关键短板，尤其缺乏将定位精度诉求与任务目标点驱动的协同规划统一建模并联合优化的体系。为此，本文构建了一套空地协同平台，并提出面向可见性编队的协同定位与规划框架，将 LoS 连通与定位不确定性显式纳入规划目标与约束，形成“定位—感知—规划”的闭环耦合，在复杂遮挡环境下显著提升系统的定位稳定性与协同运行效率，具有重要意义。
+
+针对该目标，本文首先构建基于动态 UWB 基站的定位平台，采用多基站高效测距方案，结合面向移动基站的多边定位与 ESKF 融合实现空地系统间的相对定位；同时基于栅格占据图完成共享环境感知与地图同步，在自行搭建的硬件平台上开展实物验证，并在 Gazebo 仿真环境中构建空地机器人平台，为后续规划提供稳定可靠的状态与环境输入。在此基础上，本文首先提出基于点云聚类的协同规划方法：将连续飞行与行驶轨迹离散化，结合 A* 引导路径与离散控制障碍函数，并引入最小包络椭圆柱的几何避障约束，建立非线性优化模型与滚动时域策略，实现安全、平滑且高效的空地轨迹生成。
+
+进一步地，本文在前述方法上进行优化，提出基于序列可视空间的协同规划方法：以可视空间表达环境与可见性约束，采用混合 A* 搜索满足动力学约束的引导路径，沿路径生成序列可视走廊，将 LoS 连通与定位不确定性显式并入约束体系，并构建局部路点同步跟踪规划器，形成“全局—局部”两阶段求解策略。改进后的方法在复杂环境中能够更好地维持 LoS、抑制定位漂移，并在保证轨迹安全与可执行性的同时显著提升协同运行效率与鲁棒性。实验结果表明，本文提出的空地机器人平台能够实现准确的相对定位与高效的协同规划。
 
 \section{国内外研究现状}
 \subsection{无人系统定位研究现状}
@@ -83,7 +159,7 @@
 \subsection{优化问题建模与求解}
 
 \section{局部跟踪避障轨迹生成}
-\subsection{多机器人路径点同步跟踪方法}
+\subsection{路径点同步跟踪约束构建}
 \subsection{局部轨迹避障方法}
 \subsection{最小能量轨迹优化方法}
 
