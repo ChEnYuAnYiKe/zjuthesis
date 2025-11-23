@@ -805,11 +805,7 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
 
 \section{定位实验与结果分析} \label{sec:localization_result}
 
-本节围绕前文提出的基于动态 UWB 基站的空地协同定位方法，开展对比实验，对系统在不同配置下的定位精度与稳定性进行定量评估。实验主要关注两类结果：一类是仅依赖 UWB 多边定位所得的原始位置估计 $\hat{\mathbf{p}}_{\mathrm{uwb}}(t)$，另一类是将多边定位结果与机载 IMU 通过 ESKF 融合后得到的滤波估计 $\hat{\mathbf{p}}(t)$ 与 $\hat{\mathbf{v}}(t)$。在固定基站场景中，通过静止标签与运动标签试验，分析 UWB 测距误差与几何布局对原始定位精度的影响，并以真值轨迹为基准比较滤波前后的位置误差变化；在移动基站场景中，通过固定标签、UGV 携带基站运动的方式验证动态基站条件下多边定位的几何一致性与误差水平。综合上述结果，从测距残差、位置/速度误差统计以及误差随时间变化等方面，系统评估动态 UWB 基站与 ESKF 融合对提高空地系统相对定位精度和鲁棒性的作用。
-
-% 实验平台搭建过前，补一个对比实验，动与不动对比，暂定
-\section{定位实验与结果分析} \label{sec:localization_result}
-为验证本章所提出动态 UWB 基站协同定位框架的有效性，本节在典型实验场景下对系统的定位性能进行定量评估。实验将从两方面展开：一方面，在固定基站与移动基站两种布设条件下，考察基于多边定位的 UWB 原始位置解 $\hat{\mathbf{p}}_{\mathrm{uwb}}(t)$ 的绝对精度与稳定性，分析锚点几何与基站运动对测距与定位误差的影响；另一方面，在数据集上加入基于 ESKF 的融合算法，比较滤波前后的位姿估计结果 $\hat{\mathbf{p}}(t),\hat{\mathbf{v}}(t)$ 与真值轨迹 $\mathbf{p}^{\mathrm{gt}}(t),\mathbf{v}^{\mathrm{gt}}(t)$，从位置与速度两个层面评估滤波对噪声抑制、平滑性以及稳态精度的改进程度。通过上述一系列实验，系统验证所提方法在不同部署条件下的定位精度与鲁棒性，为后续协同规划与控制提供实验依据。
+本节围绕前文提出的基于动态 UWB 基站的空地协同定位方法，开展对比实验，对系统在不同配置下的定位精度与稳定性进行定量评估。实验主要关注两类结果：一类是仅依赖 UWB 多边定位所得的原始位置估计 $\hat{\mathbf{p}}_{\mathrm{uwb}}(t)$，另一类是将多边定位结果与机载 IMU 通过 ESKF 融合后得到的滤波估计 $\hat{\mathbf{p}}(t)$ 与 $\hat{\mathbf{v}}(t)$。在固定基站场景中，通过运动标签实验，分析 UWB 测距误差与几何布局对原始定位精度的影响，并以真值轨迹为基准比较滤波前后的位置误差变化；在移动基站场景中，通过固定标签、UGV 携带基站运动的方式验证动态基站条件下多边定位的几何一致性与误差水平。综合上述结果，从测距残差、位置与速度误差统计以及误差随时间变化等方面，系统评估动态 UWB 基站与 ESKF 融合对提高空地系统相对定位精度和鲁棒性的作用。
 
 \subsection{实验配置与评价指标}
 
@@ -846,13 +842,17 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
 在速度估计方面，由于 UWB 多边定位不直接输出速度，本节主要比较 ESKF 融合后的速度与真值速度之间的差异。\autoref{fig:pos_vel_error_compare} 的第二与第三张子图分别给出了 $v_x$ 与 $v_y$ 分量随时间的对比曲线，可以看到两者在整个实验时段内变化趋势高度一致，能够准确反映标签在快速运动和系统噪声作用下的速度变化。从定量结果看，$v_x$ 与 $v_y$ 分量的均方根误差分别约为 $0.031\,\mathrm{m/s}$ 和 $0.049\,\mathrm{m/s}$，最大速度误差幅值约为 $0.294\,\mathrm{m/s}$，与 \autoref{tab:fixed_error_stats} 中的统计结果一致，说明在固定基站、无遮挡环境中，ESKF 在保持厘米级位置精度的同时，能够提供平滑且与真值一致的平面速度估计。
 
 \begin{table}[htbp]
+    \centering
     \caption{固定基站条件下位置与速度误差统计}
     \label{tab:fixed_error_stats}
-    \begin{tabularx}{\linewidth}{c|*{5}{X<{\centering}}}
-        \hline
-        方法 & $\mathrm{RMSE}_{xy}$/cm & $e_{\max,xy}$/cm & $\mathrm{RMSE}_{v_x}$/m/s & $\mathrm{RMSE}_{v_y}$/m/s & $e^{v}_{\max}$/m/s \\ \hline
-        UWB 多边定位 & 2.97 & 13.8 & --    & --    & --    \\ \hline
-        ESKF 滤波     & 2.95 & 11.9 & 0.031 & 0.049 & 0.294 \\ \hline
+    \begin{tabularx}{\linewidth}{c *{5}{X<{\centering}}} 
+        \toprule
+        方法 & $\mathrm{RMSE}_{xy}$/cm & $e_{\max,xy}$/cm & $\mathrm{RMSE}_{v_x}$/m/s & $\mathrm{RMSE}_{v_y}$/m/s & $e^{v}_{\max}$/m/s \\ 
+        \midrule 
+        UWB 多边定位 & 2.97 & 13.8 & --    & --    & --    \\
+
+        ESKF 滤波     & 2.95 & 11.9 & 0.031 & 0.049 & 0.294 \\ 
+        \bottomrule
     \end{tabularx}
 \end{table}
 
@@ -1258,7 +1258,7 @@ C_1,\dots,C_{N_c}\subset P,
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\linewidth]{chapter_3/聚类环境.png}
+    \includegraphics[width=0.8\linewidth]{chapter_3/ellipes_vis.png}
     \caption{环境聚类为最小包络椭圆的结果}
     \label{fig:mee_cluster}
 \end{figure}
@@ -1335,7 +1335,7 @@ z\in[z_i^-,\,z_i^+] \Big\},
 \(
 \{c_i,a_i,b_i,\theta_i,z_i^-,z_i^+\}
 \)
-构成的紧凑环境模型。该模型参数维度低、表达连续可微，便于在后续章节中直接构造距离函数、法向量与避障约束，为协同规划提供可靠的几何支撑。\autoref{fig:mee_cluster}展示了DBSCAN 算法在仿真中的点云数据上的聚类效果。算法以点云的空间分布特征为依据，成功识别出了场景中的多个长方体障碍物结构（如图中右侧蓝色椭圆柱所示）。聚类结果表明，该方法能够有效地将空间中离散的点云数据划分为具有明确物理意义的障碍物区域，为后续章节提供了可靠的环境信息。
+构成的紧凑环境模型。该模型参数维度低、表达连续可微，便于在后续章节中直接构造距离函数、法向量与避障约束，为协同规划提供可靠的几何支撑。\autoref{fig:mee_cluster}展示了DBSCAN 算法在仿真中的点云数据上的聚类效果。算法以点云的空间分布特征为依据，成功识别出了场景中的多个长方体障碍物结构（如图中蓝色椭圆柱所示）。聚类结果表明，该方法能够有效地将空间中离散的点云数据划分为具有明确物理意义的障碍物区域，为后续章节提供了可靠的环境信息。
 
 \subsection{基于混合 A* 的局部引导目标点搜索方法}
 本文在二维栅格占据图上采用混合（Kino\mbox{-}Dynamic）A* 生成满足动力学与安全约束的离散可跟踪路径片段，并从中选取局部引导目标点。设当前工作栅格地图为
@@ -1401,12 +1401,12 @@ f_c = g_c + h_c.
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.7\linewidth]{chapter_3/kino_astar.png} 
-    \caption{Kino\mbox{-}Dynamic A* 生成的动力学可行引导路径示意图}
+    \caption{混合 A* 生成的动力学可行引导路径示意图}
     \label{fig:kino_astar_demo}
 \end{figure}
 
 \section{基于离散控制障碍函数的避障约束构建} \label{sec:dcbf}
-上一节的 Kino\mbox{-}Dynamic A* 在体素占据图上搜索得到满足动力学约束的无碰撞路径。本文并不直接将整条离散路径约束到优化变量上，而是仅从搜索结果中选取当前感知范围内距离全局目标最近的一个路径点，作为滚动时域内的局部引导目标。机器人之间以及机器人与障碍之间的实际碰撞避免均由本节给出的离散控制障碍函数（Discrete Control Barrier Function, DCBF）\cite{dcbf}实现。具体做法是：在统一的离散动力学模型下，将上一节构造的最小包络椭圆柱环境表示转化为关于状态的可微距离函数，并通过 DCBF 一步条件构造不等式约束，从而在 NMPC 中显式保证预测域内的轨迹安全性。
+上一节的 混合 A* 在体素占据图上搜索得到满足动力学约束的无碰撞路径。本文并不直接将整条离散路径约束到优化变量上，而是仅从搜索结果中选取当前感知范围内距离全局目标最近的一个路径点，作为滚动时域内的局部引导目标。机器人之间以及机器人与障碍之间的实际碰撞避免均由本节给出的离散控制障碍函数（Discrete Control Barrier Function, DCBF）\cite{dcbf}实现。具体做法是：在统一的离散动力学模型下，将上一节构造的最小包络椭圆柱环境表示转化为关于状态的可微距离函数，并通过 DCBF 一步条件构造不等式约束，从而在 NMPC 中显式保证预测域内的轨迹安全性。
 
 \subsection{经典离散控制障碍函数}
 
@@ -1518,13 +1518,13 @@ h_i(\mathbf{x}_{k+1})\ \ge\ (1-\gamma)\,h_i(\mathbf{x}_k),
 通过上述构造，最小包络椭圆柱参数 \(\{a_i,b_i,\theta_i,z_i^{-},z_i^{+}\}\) 与机器人位置之间的关系以封闭形式给出了到障碍边界的最小距离。将这些几何距离函数代入 DCBF 约束 \autoref{eq:dcbf_constraint_ec}，并配合上一节混合 A* 选取的局部引导目标点，NMPC 在整个预测域内可以同时考虑动力学可行性和空间安全性，从而在未知且复杂的环境中实现实时、可靠的协同避障规划。
 
 \section{多目标约束的实时协同轨迹生成} \label{sec:traj_opt}
-基于前述统一离散动力学模型与椭圆柱环境表达，本节构建以 UAV 为 leader、UGV 为 follower 的协同优化框架。UAV 根据 Kino\mbox{-}Dynamic A* 给出的全局无碰撞路径，在每个规划周期选取局部引导路点并作为轨迹优化的主要参考；各 UGV 通过与 UAV 及彼此之间的相对位置约束实现从动协同，形成具有一定几何结构的编队。优化目标综合考虑引导路点跟踪、编队几何保持、空地间视线连通质量以及控制能耗等多项子目标，约束条件则由统一动力学方程、速度与加速度限幅、基于 DCBF 的椭圆柱避障约束以及机器人间安全距离约束共同构成。整个问题在滚动时域框架下以 NMPC 形式在线求解，使系统能够在环境持续变化和任务目标更新时实现实时重规划与稳定协同。
+基于前述统一离散动力学模型与椭圆柱环境表达，本节构建以 UAV 为 leader、UGV 为 follower 的协同优化框架。UAV 根据 混合 A* 给出的全局无碰撞路径，在每个规划周期选取局部引导路点并作为轨迹优化的主要参考；各 UGV 通过与 UAV 及彼此之间的相对位置约束实现从动协同，形成具有一定几何结构的编队。优化目标综合考虑引导路点跟踪、编队几何保持、空地间视线连通质量以及控制能耗等多项子目标，约束条件则由统一动力学方程、速度与加速度限幅、基于 DCBF 的椭圆柱避障约束以及机器人间安全距离约束共同构成。整个问题在滚动时域框架下以 NMPC 形式在线求解，使系统能够在环境持续变化和任务目标更新时实现实时重规划与稳定协同。
 
 \subsection{无人机引导路点约束构建}
 
-上一节的 Kino\mbox{-}Dynamic A* 在体素占据图中给出了从当前 UAV 位置到全局目标的一条满足动力学与碰撞约束的离散路径。直接在优化中强制整个路径通常会导致约束规模过大。为此，本文在每个规划周期只从该离散路径中提取一个位于当前感知范围边界附近的“局部引导路点”，并在预测域内将 UAV 逐步吸引到该路点附近；随着滚动时域向前推进，引导路点也不断沿 Kino\mbox{-}Dynamic A* 路径向全局目标移动，从而实现全局导航。
+上一节的 混合 A* 在体素占据图中给出了从当前 UAV 位置到全局目标的一条满足动力学与碰撞约束的离散路径。直接在优化中强制整个路径通常会导致约束规模过大。为此，本文在每个规划周期只从该离散路径中提取一个位于当前感知范围边界附近的“局部引导路点”，并在预测域内将 UAV 逐步吸引到该路点附近；随着滚动时域向前推进，引导路点也不断沿 混合 A* 路径向全局目标移动，从而实现全局导航。
 
-设在当前规划时刻由 Kino\mbox{-}Dynamic A* 输出的三维路径折线为
+设在当前规划时刻由 混合 A* 输出的三维路径折线为
 \(\{\mathbf{w}_j\}_{j=0}^{L}\subset\mathbb{R}^3\)，其中 \(\mathbf{w}_0\) 与 UAV 当前姿态在位置上对齐。根据统一动力学模型，规划层对 UAV 采用固定采样周期 \(\Delta t\) 和预测步数 \(H\)。记 UAV 在平面上的最大速度为 \(\|\mathbf{v}_{\max}^{\mathrm{uav}}\|_2\)，选取一个折减系数 \(\eta\in(0,1]\)，得到预测域内可达到的保守平均速度
 \begin{equation}
 \bar v=\eta\,\big\|\mathbf{v}_{\max}^{\mathrm{uav}}\big\|_2.
@@ -1554,16 +1554,16 @@ s^\star=\min\{L_{\mathrm{hor}},\,s_L\},
 在统一动力学模型下，UAV 的未来位置变量记为
 \(\mathbf{p}^{a}_k\in\mathbb{R}^3\)（\(k=0,\dots,H\)），其中
 \(\mathbf{p}^{a}_0\) 由当前状态给定。为了避免在预测的前期阶段对局部目标路点约束过紧，从而保留一定的机动空间，本文采用随时间单调增大的权重序列。具体地，引入参数
-\(\lambda_{\min}>0\)、\(\lambda_{\max}>\lambda_{\min}\) 与指数 \(\nu\ge 1\)，定义
+\(\lambda^{\min}_{\mathrm{wp}}>0\)、\(\lambda^{\max}_{\mathrm{wp}}>\lambda^{\min}_{\mathrm{wp}}\) 与指数 \(\nu\ge 1\)，定义
 \begin{equation}
-\lambda_k=\lambda_{\min}
-+\big(\lambda_{\max}-\lambda_{\min}\big)\!
+\lambda_k=\lambda^{\min}_{\mathrm{wp}}
++\big(\lambda^{\max}_{\mathrm{wp}}-\lambda^{\min}_{\mathrm{wp}}\big)\!
 \left(\frac{k}{H}\right)^{\nu},
 \qquad k=0,\dots,H-1,
 \label{eq:wp_lambda}
 \end{equation}
 并在预测末端给出更大的终端权重
-\(\lambda_{\mathrm{term}}=\kappa\,\lambda_{\max}\)（\(\kappa\gg 1\)）。这样，在靠近当前时刻的位置点上，UAV 可以在不违背其他约束的前提下自由调整轨迹；而在预测域后半段以及终端时刻，优化会越来越强调与引导路点 \(\mathbf{w}^\star\) 的一致性。
+\(\lambda_{\mathrm{term}}=\kappa\,\lambda^{\max}_{\mathrm{wp}}\)（\(\kappa\gg 1\)）。这样，在靠近当前时刻的位置点上，UAV 可以在不违背其他约束的前提下自由调整轨迹；而在预测域后半段以及终端时刻，优化会越来越强调与引导路点 \(\mathbf{w}^\star\) 的一致性。
 
 基于上述权重设计，引导路点跟踪代价写为
 \begin{equation}
@@ -1572,7 +1572,7 @@ J_{\mathrm{wp}}=
 +\lambda_{\mathrm{term}}\,\big\|\mathbf{p}^{a}_H-\mathbf{w}^\star\big\|_2^2 .
 \label{eq:wp_cost}
 \end{equation}
-该代价项使得在每个规划周期内，UAV 既沿 Kino\mbox{-}Dynamic A* 给出的全局无碰撞通道推进，又能够在局部范围内根据最新地图信息进行微调。
+该代价项使得在每个规划周期内，UAV 既沿 混合 A* 给出的全局无碰撞通道推进，又能够在局部范围内根据最新地图信息进行微调。
 
 \subsection{空地系统间可见性约束构建}
 
@@ -1792,11 +1792,11 @@ J_{\mathrm{form}}
 \begin{equation}
 J_{\mathrm{ctrl}}
 =\lambda_{\mathrm{ctrl}}\sum_{r\in\mathcal{R}}\sum_{k=0}^{H-1}\big\|\mathbf{u}^{(r)}_k\big\|_2^{2}
-+\lambda_{\mathrm{ctrl}}\sum_{r\in\mathcal{R}}\sum_{k=0}^{H-2}
++\lambda_{\Delta u}\sum_{r\in\mathcal{R}}\sum_{k=0}^{H-2}
 \big\|\mathbf{u}^{(r)}_{k+1}-\mathbf{u}^{(r)}_{k}\big\|_2^{2},
 \label{eq:J_ctrl}
 \end{equation}
-其中\(\lambda_{\mathrm{ctrl}}>0\) 为控制项目标的平滑权重。
+其中\(\lambda_{\mathrm{ctrl}}>0\) 为控制信号的平滑权重，\(\lambda_{\Delta u}>0\) 为相邻控制增量的平滑权重。
 
 综合上述各项，单周期内的非线性优化问题写为
 \begin{equation}
@@ -1857,15 +1857,161 @@ p^{(r)}(t)=\alpha_0+\alpha_1 t+\alpha_2 t^2+\alpha_3 t^3+\alpha_4 t^4+\alpha_5 t
 \]
 以位置、速度和加速度在 \(t=0\) 与 \(t=\Delta t\) 处的六个边界条件唯一确定系数向量 \(\boldsymbol{\alpha}=[\alpha_0,\ldots,\alpha_5]^\top\)。该构造保证轨迹在位置、速度和加速度上均为 \(C^2\) 连续，使离散优化解在时间上自然平滑。随后以控制频率在多项式上采样得到 \(\{p^{(r)}(t),\dot p^{(r)}(t),\ddot p^{(r)}(t)\}\)，作为参考信号分别下发给 UAV 与 UGV 的底层控制器进行跟踪控制。
 
-该滚动时域策略的核心在于“感知—预测—执行”。在每个规划周期内，实际执行当前时间区间 \([0,\Delta t]\) 内对应的多项式轨迹，将尚未执行的部分作为下一周期的热启动，并在新的感知信息、障碍物集合和引导点 \(w^\star\) 到来后重新构建并求解优化问题。借助 CasADi 的自动微分能力和 IPOPT 的高效内点法，该策略能够在多目标权重
-\(\{\lambda_{\mathrm{wp}},\lambda_{\mathrm{vis}},\lambda_{\mathrm{form}},\lambda_{\mathrm{ctrl}}\}\) 的调节下，持续产生满足动力学可行性与安全约束的空地协同轨迹，从而在未知、拥挤和缓慢变化的环境中实现在线协同规划与控制。
+该滚动时域策略的核心在于“感知—预测—执行”。在每个规划周期内，实际执行当前时间区间 \([0,\Delta t]\) 内对应的多项式轨迹，将尚未执行的部分作为下一周期的热启动，并在新的感知信息、障碍物集合和引导点 \(w^\star\) 到来后重新构建并求解优化问题。借助 CasADi 的自动微分能力和 IPOPT 的高效内点法，该策略能够在多目标权重的调节下，持续产生满足动力学可行性与安全约束的空地协同轨迹，从而在未知、拥挤和缓慢变化的环境中实现在线协同规划与控制。
 
 % 尽量增加一个实物实验
 \section{仿真实验} \label{sec:sim}
-\subsection{仿真环境设置}
-\subsection{仿真实验结果}
+
+\subsection{实验环境设置}
+
+为评估所提出协同规划方法在不同环境复杂度下的性能，本文在尺寸为 \(30\times30\times3\,\mathrm{m}^3\) 的三维仿真场地内构建两类场景：稀疏障碍场景与稠密障碍场景。体素分辨率均为 \(0.1\,\mathrm{m}\)，障碍物在整个场地范围内随机布置，满足稀疏环境中障碍物间的平均间距约为 \(2.0\,\mathrm{m}\)，稠密环境中障碍物间的平均间距约为 \(1.2\,\mathrm{m}\)。空地系统由 \(1\) 架 UAV 与 \(4\) 辆 UGV 组成。初始时刻，UAV 位于 \((0,0)\,\mathrm{m}\) 上方，四辆 UGV 的位置为\(\mathrm{UGV}_0(-1,1)\)、\(\mathrm{UGV}_1(-1,-1)\)、\(\mathrm{UGV}_2(1,-1)\)、\(\mathrm{UGV}_3(1,1)\)。UAV 全局目标点设在场景中 \((32,0)\,\mathrm{m}\) 附近，引导空地编队穿越整个障碍区域。
+
+非线性优化问题基于 CasADi 的符号函数构建，目标函数与约束通过自动微分进行计算，并由 IPOPT 的对偶内点法求解。规划循环以固定频率触发，底层控制器以更高频率采样五次多项式轨迹并生成底层控制命令。实际仿真中，单次 NMPC 求解在平均与最坏情况下均能满足规划频率要求，保证了滚动时域协同优化的实时性。关键优化与求解相关参数汇总如\autoref{tab:opt_params} 所示。
+
+\begin{table}[htbp]
+    \centering
+    \caption{协同优化与求解相关参数设置}
+    \label{tab:opt_params}
+    \begin{tabularx}{\linewidth}{c X<{\centering}}
+        \toprule
+        参数 & 数值 \\
+        \midrule
+        采样时间 $\Delta t$ & $0.2\,\mathrm{s}$ \\
+        预测步长 $H$ & $10$ \\
+        UAV 速度/加速度限幅 & $2.5\,\mathrm{m/s}$，$3.0\,\mathrm{m/s^2}$ \\
+        UGV 速度/加速度限幅 & $1.4\,\mathrm{m/s}$，$1.0\,\mathrm{m/s^2}$ \\
+        碰撞判定安全半径 & $d_{\mathrm{safe}}=0.3\,\mathrm{m}$ \\
+        DCBF 衰减系数 & $\gamma=0.15$ \\
+        UGV之间的距离 & $[d_{\mathrm{low}},d_{\mathrm{high}}]=[4.0,8.0]\,\mathrm{m}$ \\
+        UAV–UGV 距离 & 最大允许距离 $6.0\,\mathrm{m}$\\
+        UAV 路点跟踪权重 & $\lambda_{\mathrm{wp}}^{\min}=1.0$，$\lambda_{\mathrm{wp}}^{\max}=4.0$\\
+        可见性代价权重 & $\lambda_{\mathrm{vis}}=1.2$ \\
+        UGV 距离代价权重 & $\lambda_{\mathrm{dis}}=1.0$ \\
+        UAV–UGV 距离代价权重 & $\lambda_{\mathrm{bound}}=1.4$ \\
+        队形形状代价权重 & $\lambda_{\mathrm{shape}}=0.9$ \\
+        控制能量与控制增量权重 & $\lambda_{\mathrm{ctrl}}=0.5$，$\lambda_{\Delta u}=0.2$ \\
+        IPOPT 最大迭代次数 & $500$ \\
+        IPOPT 收敛容忍度 &  $10^{-5}$ \\
+        优化问题重规划频率 & $20\,\mathrm{Hz}$ \\
+        底层控制频率 & $100\,\mathrm{Hz}$ \\
+        单次求解平均耗时 & $0.04\,\mathrm{s}$ \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsection{实验结果分析}
+
+本节在稀疏与稠密两类障碍物环境下，对比“启用可见性约束（Full）”与“去掉可见性约束（NoVis）”两种配置的协同规划效果。图像层面，\autoref{fig:sparse_traj_compare} 和 \autoref{fig:dense_traj_compare} 展示了两类环境中 UAV 与四辆 UGV 的平面轨迹；统计层面，\autoref{tab:sparse_stat} 与 \autoref{tab:dense_stat} 分别给出了平均可视率、队形偏差以及任务成功率和路径长度等指标。队形偏差中，“径向偏差”度量各 UGV 相对理想矩形顶点的距离偏差，“角度偏差”度量四边形内角相对 $90^\circ$ 的偏差，“边长偏差”度量相邻边长度相对理想边长的偏差；轨迹长度一列则给出 UAV 路径长度与四辆 UGV 路径长度的平均值。
+
+\autoref{fig:sim_runtime_record} 直观展示了本章协同规划方法在复杂障碍场景下的在线规划过程与空地协同关系。图中，基于混合 A* 生成的动力学可行全局参考路径以蓝色曲线给出，用于从当前位置指向远端目标点；当前规划周期内优化得到的 UAV 局部参考轨迹以红色点列表示，对应 UAV 在滚动时域中的待跟踪轨迹；四辆 UGV 的目标轨迹以青色点列给出，体现出其在 UAV 领航下的协同推进效果。场景中的彩色点云及其外层的几何包络体对应前文通过聚类与最小包络椭圆柱得到的障碍物表示，反映了环境感知与凸集建模的过程。同时连接UAV与UGV之间的绿色直线表示两者之间是可见的，如果不可见则以红色直线表示。通过该图可以清晰看到，在点云增量更新与障碍物动态重建的条件下，空地多机器人系统如何依托混合 A* 引导与非线性优化联合作用，实现对轨迹的实时重规划与协同运动。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\linewidth]{chapter_3/runtime_record2.png} 
+    \caption{空地系统协同规划过程示意图}
+    \label{fig:sim_runtime_record}
+\end{figure}
+
+从稀疏障碍物环境的结果（\autoref{fig:sparse_traj_compare} 与 \autoref{tab:sparse_stat}）可以看出，两种配置下 UAV 与 UGV 均能绕开障碍顺利到达全局目标点，任务成功率均为 $100\%$，轨迹长度相近：UAV 约为 $34\sim 35\,\mathrm{m}$，UGV 平均约为 $28\sim 29\,\mathrm{m}$。启用可见性约束时，平均可视率略高（$0.87$ 对比 $0.85$），说明在稀疏场景中可见性代价能够在不显著增加路径长度的前提下，轻微提升空地之间的视距质量。然而，由于障碍分布较为宽松，系统有足够的空间同时满足避障和队形约束，去掉可见性项后，四车之间的径向和角度偏差反而更小（径向偏差由 $0.24\,\mathrm{m}$ 降至 $0.13\,\mathrm{m}$，角度偏差由 $16.5^\circ$ 降至 $8.6^\circ$），多边形形状略为更规整。这表明在障碍稀疏时，可见性项对 LoS 的增益有限，而队形项本身已经足以保持较好的几何结构。
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}{0.95\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{chapter_3/sparse_env_traj_full_constrain.png}
+    \caption{启用可见性约束}
+    \label{fig:sparse_full}
+  \end{subfigure}
+  \vskip 0.5em
+  \begin{subfigure}{0.95\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{chapter_3/sparse_env_traj_noVisConstrain.png}
+    \caption{去掉可见性约束}
+    \label{fig:sparse_novis}
+  \end{subfigure}
+  \caption{稀疏障碍环境下的空地系统轨迹对比}
+  \label{fig:sparse_traj_compare}
+\end{figure}
+
+\begin{table}[htbp]
+  \caption{稀疏障碍物环境下不同约束配置的统计结果}
+  \label{tab:sparse_stat}
+  \centering
+  \begin{tabularx}{\linewidth}{X<{\centering} c c c c}
+    \toprule
+    优化问题 & 可视率 & 队形偏差 & 成功率 & 轨迹长度 (m)\\
+    \midrule
+    启用可见性约束 &
+    0.87 &
+    $0.24 / 16.5^\circ / 0.20$ &
+    100\% &
+    $34.1 / 28.7$ \\
+    去掉可见性约束 &
+    0.85 &
+    $0.13 / 8.6^\circ / 0.20$ &
+    100\% &
+    $34.7 / 28.3$ \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+在稠密障碍物环境下（\autoref{fig:dense_traj_compare} 与 \autoref{tab:dense_stat}），情况有所不同。首先，两种配置下 UAV 的路径长度依然维持在约 $35\,\mathrm{m}$，UGV 平均路径在 $28\sim 29\,\mathrm{m}$ 左右，说明即便在更拥挤的场景中，优化器仍然能够找到长度相近的可行轨迹。但从可视率和成功率可以看出可见性约束的作用：启用可见性项后，平均可视率提高到 $0.77$（相较去掉可见性时的 $0.66$），空地之间的视距遮挡明显减少；同时队形偏差也略有改善，径向偏差从 $0.21\,\mathrm{m}$ 降至 $0.15\,\mathrm{m}$，角度偏差从 $12.1^\circ$ 降至 $10.7^\circ$，边长偏差略有下降。这说明在障碍密集、视线容易被遮挡的条件下，可见性代价能够引导 UAV 与 UGV 在障碍缝隙间协同机动，使队形既保持基本矩形结构，又尽量避免 LoS 穿过障碍物。
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}{0.95\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{chapter_3/dense_env_traj_full_constrain.png}
+    \caption{启用可见性约束}
+    \label{fig:dense_full}
+  \end{subfigure}
+  \vskip 0.5em
+  \begin{subfigure}{0.95\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{chapter_3/dense_env_traj_noVisConstrain.png}
+    \caption{去掉可见性约束}
+    \label{fig:dense_novis}
+  \end{subfigure}
+  \caption{稠密障碍环境下的空地系统轨迹对比}
+  \label{fig:dense_traj_compare}
+\end{figure}
+
+\begin{table}[htbp]
+  \caption{稠密障碍物环境下不同约束配置的统计结果}
+  \label{tab:dense_stat}
+  \centering
+  \begin{tabularx}{\linewidth}{X<{\centering} c c c c}
+    \toprule
+    优化问题 & 可视率 & 队形偏差 & 成功率 & 轨迹长度 (m)\\
+    \midrule
+    启用可见性约束 &
+    0.77 &
+    $0.15 / 10.7^\circ / 0.29$ &
+    40\% &
+    $34.0 / 29.0$ \\
+    去掉可见性约束 &
+    0.66 &
+    $0.21 / 12.1^\circ / 0.31$ &
+    60\% &
+    $34.9 / 28.6$ \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+另一方面，稠密环境中启用可见性约束的任务成功率从 $60\%$ 降至 $40\%$。这反映了在高密度障碍场景下，多目标之间存在更强的冲突：为了同时兼顾避障、安全距离、队形保持和视距质量，局部可行域被进一步压缩，部分仿真中会出现优化不可行或无法在限定时间内收敛的情况；而不考虑可见性时，可行域更大、成功率略高，但以更低的平均可视率和更差的队形质量为代价。结合轨迹图可以观察到，去掉可见性约束时 UAV 更倾向于沿局部最短路径穿越障碍“缝隙”，导致部分时间段内空地之间被障碍完全遮挡；启用可见性后，UAV 会在横向上适度绕行，以保证绝大多数时间内至少有一条视距通道保持畅通。
+
+综合两类环境的结果，可以认为在障碍较稀疏时，可见性项对整体路径和队形的影响较为温和，但仍能在不降低成功率的前提下略微提升可视率；在障碍密集、视距容易被遮挡的场景中，可见性约束显著提升了空地系统间的平均可视率和队形几何质量，同时带来一定的成功率折损。总体上，所提出的多目标协同优化框架能够在路径长度、避障安全、队形保持和空地可见性之间实现可调节的权衡，为后续在真实复杂环境中的在线部署提供了参数选择与性能预期的依据。
 
 \section{本章小结} \label{sec:summary_opt1}
+
+本章围绕“轻量环境表达与多目标统一优化”的思路，提出了一种面向空地多机器人系统的协同轨迹规划方法，并在仿真环境中验证了其有效性。首先，在动力学层面针对空地异构平台进行了统一建模。对于 UAV，基于其微分平坦特性，以质心位置和偏航角作为平坦输出，给出了由平坦输出到姿态、推力和力矩的解析映射；对于麦克纳姆轮 UGV，则从全向运动学关系出发，说明了通过机体系平移速度即可在平面内实现任意方向运动。在此基础上，将 UAV 的三维运动与 UGV 的二维平面运动统一抽象为以“位置–速度”为状态、以“加速度”为控制的二阶积分离散模型，并施加平台相关的速度与加速度限幅约束，为后续协同优化提供了统一的状态与控制变量。  
+
+在环境建模方面，本章提出了基于 DBSCAN 聚类与最小包络椭圆柱的障碍物表达方法。通过对共享点云进行密度聚类，将障碍物从噪声中分离，并在地平面上对每个聚类簇求解最小包络椭圆，再结合高度范围扩展为椭圆柱，以少量几何参数紧凑描述复杂环境。基于该凸集表示，构造了到椭圆边界的解析距离及其梯度，并与离散控制障碍函数结合，形成可直接嵌入 NMPC 的几何避障约束，在保证安全集前向不变性的同时兼顾数值可解性。为获得具有动力学一致性的引导信息，本文利用混合 A* 在当前栅格地图上搜索满足速度与加速度约束的无碰撞路径，从中选取位于感知边界附近的局部目标点作为 UAV 在预测域内的引导路点，从而避免全局目标点远离可见区域时引发的“盲目追踪”。  
+
+在多目标协同优化方面，本章在统一动力学和环境表示的基础上，建立了“UAV 领航、UGV 跟随”的非线性模型预测控制框架。代价函数同时包含 UAV 对引导路点的跟踪项、空地之间基于椭圆柱几何的可见性代价、四辆 UGV 的队形尺度与形状代价以及控制能量与控制增量的正则项，并额外加入 UAV 与各 UGV 之间的距离约束以抑制队形过度拉伸。通过调整各子目标的权重，可以在路径长度、可视质量、编队稳定性和能耗之间实现可调的折中。整个优化问题在 CasADi 中以符号形式构建，采用 IPOPT 的原始–对偶内点法在滚动时域内实时求解，并利用五次多项式对相邻采样时刻的解进行时间参数化，将离散解转化为平滑、可执行的连续参考轨迹。  
+
+仿真结果表明，该方法在 \(30\times 30\times 3\,\mathrm{m}^3\) 的稀疏和稠密障碍环境中均能完成一架 UAV 与四辆 UGV 的协同穿越任务，单次求解时间保持在实时范围内。对比启用和去除可见性约束的结果可以看出，在稀疏场景下，可见性约束在几乎不增加路径代价的情况下略微提升了平均可视率；在稠密场景下，可见性约束显著改善了空地系统间的视距联系，同时对成功率和轨迹长度带来一定影响，体现出在可视质量与通过效率之间存在明确的权衡空间。总体来看，本章提出的基于点云聚类、椭圆柱凸表示和离散控制障碍函数的协同规划框架，能够在复杂三维障碍环境中生成安全、保持队形并兼顾可见性的空地协同轨迹。
+
 
 % 复杂环境规划
 \chapter{基于序列可视空间的两阶段协同规划方法研究}
@@ -1880,8 +2026,8 @@ p^{(r)}(t)=\alpha_0+\alpha_1 t+\alpha_2 t^2+\alpha_3 t^3+\alpha_4 t^4+\alpha_5 t
 \section{可视空间的构建与动力学引导路径搜索}\label{sec:vs+kino}
 本节给出从全局路径到序列可视空间的生成流程。首先在共享占据栅格和统一动力学模型上，采用 Kino-Dynamic A* 搜索得到满足速度与加速度限幅的全局可跟踪路径。该路径以无人机平台的实际机动能力为约束，确保每一段都可由后续执行层稳定跟踪。然后对得到的路径按照等时间间隔进行采样，形成面向无人机的离散引导序列，采样间隔由预测域长度与控制周期确定，以保证与滚动优化的时间序列一致。接着以每一个采样位姿为参考，利用地图信息构建对应的可视空间，使得该空间可以表示完全位于自由区域并能够提供稳定的视距条件。最后将按时间顺序排列的可视空间串联，得到序列可视空间表示，用作后续全局协同优化中的约束构建。
 
-\subsection{基于Kino\mbox{-}Dynamic A*的引导路径生成方法}
-本节在体素占据图中采用 Kino\mbox{-}Dynamic A* 搜索满足动力学与安全约束的离散可跟踪路径，作为后续等时采样与可视空间序列化的时间骨架，方法参考\cite{zhou2019ral}。四旋翼在规划层以二阶积分模型近似：设
+\subsection{基于混合 A*的引导路径生成方法}
+本节在体素占据图中采用 混合 A* 搜索满足动力学与安全约束的离散可跟踪路径，作为后续等时采样与可视空间序列化的时间骨架，方法参考\cite{zhou2019ral}。四旋翼在规划层以二阶积分模型近似：设
 \begin{equation}
 x(t)=\begin{bmatrix}p(t)\\ v(t)\end{bmatrix}\in\mathbb{R}^{6},\qquad
 u(t)=\ddot p(t)\in\mathbb{R}^{3},\qquad
