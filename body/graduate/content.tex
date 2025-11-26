@@ -182,32 +182,39 @@ alta 等人\cite{queralta2022vio} 通过协同视觉–惯性–UWB 方案实现
 \chapter{基于动态UWB基站的协同定位方法研究}
 
 \section{引言}
-在多机器人系统中，精确、稳定的相对定位是实现协同感知与规划控制的基础环节。对于空地异构系统而言，UAV 和 UGV 在运动特性与传感配置方面存在显著差异，如何在动态、未知环境中实现两类机器人之间的高精度相对定位与统一坐标系对齐，是构建协同体系的关键技术难题。传统定位方案主要依赖固定式 UWB 基站或外部定位系统（如 GNSS 或光学运动捕捉系统），通常需要精确布设基站并进行静态标定，这不仅部署成本高、灵活性不足，而且难以适应任务区域频繁变化或环境结构复杂的场景。此外，当环境中存在障碍物遮挡或视线中断时，固定 UWB 网络的几何可观性会显著下降，测距误差被放大，进一步限制了系统的有效覆盖范围与实时定位性能。
 
-为解决上述问题，本章提出一种基于动态 UWB 基站的空地协同定位方法。通过将 UWB 基站安装在地面移动平台上构建动态测距网络，使定位系统具备随队移动、灵活部署与高频测距的能力；地面 UGV 搭载高精度激光雷达运行 LiDAR-SLAM，用以维护全局一致的坐标系，无人机端仅配备轻量级 UWB 标签与 IMU 模块，在无需外部基础设施的条件下实现空地间相对位姿的实时估计。为提高系统更新频率并降低通信负载，本章使用高效的多基站 TWR 协议，减少测距过程中消息交互次数，实现多基站测距结果的同步汇总与低功耗运行，从而获得百赫兹量级的测距数据。
+在多机器人系统中，稳定、精确的相对定位是实现协同感知与规划控制的前提。对于空地异构系统而言，UAV 与 UGV 在运动特性、载荷能力和所搭载传感器上存在明显差异：UAV 具备机动性强、视角高且覆盖范围大的优势，适合承担高频感知与全局监控任务；UGV 则具有载荷大、运行时间长和平台相对稳定等特点，适合作为计算与定位的“移动节点”。在复杂环境中，如果能够将两者的优势有效结合，并在统一坐标系下获得高频、高精度的相对位姿估计，就可以在后续规划层实现协同避障、可见性保持等高层功能。
 
-在此基础上，本章构建基于多边定位与 ESKF 的相对位姿估计方法：首先利用多边定位算法在 UGV 定义的全局坐标系下求解 UAV 的位置初值；随后将机载 IMU 输出与 UWB 测距残差在 ESKF 框架中进行紧耦合融合，得到与 UGV LiDAR-SLAM 地图对齐的高频、低偏差 UAV 相对位姿估计结果。该融合策略在抑制单一传感器退化影响的同时，显著提升了相对定位的稳定性与抗噪性，使空地系统在无外部基准的情况下仍能保持较高的定位精度与一致性。
+在 GPS 信号受限甚至完全不可用的环境下，传统做法通常依赖固定部署的 UWB 基站或光学运动捕捉系统提供绝对位置参考。该类系统往往需要在任务前进行精确布设和标定，一旦外部基础设施受限或环境发生变化，定位性能会明显下降；同时，固定基站的有效覆盖范围有限，在长距离、强遮挡环境中容易出现几何退化，导致测距误差被放大，从而影响整体定位精度与鲁棒性。
 
-在环境建图与感知共享方面，本章进一步利用 UGV 端 SLAM 生成并维护的栅格占据图作为共享环境表达载体，构建了空地间的地图同步机制，实现多源感知信息在统一坐标系下的整合与高效传输，为后续协同规划与任务决策提供一致、可复用的环境输入。通过实验验证，本文提出的动态 UWB 协同定位框架在运行中表现出高精度、高频率与较强鲁棒性的综合性能，能够有效支撑后续章节中关于可见性保持与协同规划的研究。
+为克服上述问题，本章提出一种基于动态 UWB 基站的空地协同定位方法。将 UWB 基站安装在运行 LiDAR-SLAM 的 UGV 上，使 UGV 既作为移动感知平台，又作为动态 UWB 锚点，为 UAV 提供多基站测距约束。利用 UGV 端构建的全局一致地图与位姿估计，将各基站坐标统一表达在世界坐标系下，从而在不依赖外部固定基础设施的前提下构建“随任务移动”的定位网络。
 
-本章结构安排如下：\autoref{sec:uwb_range} 介绍基于 UWB 模块的测距方法，包括基于飞行时间（Time of Flight, ToF）的双向双边测距原理与多基站高效测距策略；\autoref{sec:ag_loc} 详细阐述基于移动基站的空地相对定位方法，包括多边定位算法及基于 ESKF 的位姿估计流程；\autoref{sec:env_share} 说明基于栅格占据图的共享环境感知机制与多机器人地图同步方法；\autoref{sec:localization_result} 给出定位实验与结果分析；\autoref{sec:summary_loc} 对本章内容进行总结。
+为了在有限通信资源和标签功耗条件下实现高频测距，本章首先使用了基于飞行时间（Time of Flight, TOF）的双边双向测距（Double-Sided Two-Way Ranging, DS-TWR）方法，并在此基础上使用多基站高效 TWR 协议。该协议通过合理组织消息时序和时隙分配，在较少空口交互的前提下同时获取多个基站到标签的距离估计，支持百赫兹量级的多基站测距频率。
 
-\section{基于UWB模块的测距方法} \label{sec:uwb_range}
+在获得多基站测距结果之后，本章进一步构建基于多边定位与误差状态扩展卡尔曼滤波（Error-State Extended Kalman Filter, ESKF）的无人机位姿估计框架。首先利用多边定位方法在 UGV 定义的全局坐标系下求解 UAV 上 UWB 标签的位置初值，再将该位置与机载 IMU 的里程计输出在 ESKF 框架下融合，从而有效抑制单一传感器的漂移。
 
-为实现空地协同系统中无人机与地面机器人的高精度相对定位，本文采用 UWB 进行无线测距。UWB 信号具有时间分辨率高、多径分量可分离、抗干扰能力强等优势，能够在短距离场景中提供厘米级的测距精度。由于无人机在任务执行过程中机动频繁、姿态快速变化，且空地平台之间难以保持精确的时钟同步，传统依赖静态基站和单向时间戳的测距方法在同步性和稳定性方面均存在不足。为此，本文在 UWB 测距框架下，结合飞行时间（Time of Flight, TOF）原理采用双边双向测距（Double-Sided Two-Way Ranging, DS-TWR）方法，通过双向多次时序交互消除时钟偏差的影响，并在此基础上扩展为多基站高效测距结构，以满足空地协同定位的实时性与能效要求。
+最后，本章在统一的世界坐标系下构建并共享三维栅格占据图，利用 UGV 端 SLAM 的点云输出增量更新全局栅格地图，并将其同步至 UAV 侧，为后续基于可见性和碰撞安全的协同规划提供统一的环境表达。通过实物实验，本章将对比固定基站和动态基站两种部署方式下的定位精度与鲁棒性，展示所提出方法在不同运行情况下的实际效果。
+
+\section{基于UWB模块的测距方法}
+\label{sec:uwb_range}
+
+本节围绕 UWB 测距原理与实现展开，首先基于 TOF 给出理想情况下的距离计算模型，再在考虑时钟偏差的条件下推导双边双向测距的时间关系，并介绍将该方法扩展到多基站场景的高效 TWR 协议。
 
 \subsection{基于TOF的双边双向测距方法}
-UWB 测距的核心思想是利用无线信号在空间传播的飞行时间估计节点间距离。设标签节点与基站节点间信号传播速度为 $c$（在空中近似为电磁波传播速度），单程传播时间为 $T_{\mathrm{prop}}$，则理想情况下有
+
+UWB 测距的基本思想是利用无线电信号在空间中的传播时间估计两点间距离。设标签与基站之间的单程传播时间为 $T_{\mathrm{prop}}$，信号传播速度为 $c$（在空气中可近似为光速），则理想情况下有
 \begin{equation}
     d = c \, T_{\mathrm{prop}},
     \label{eq:tof_basic}
 \end{equation}
-其中 $d$ 为两节点之间的真实距离。然而在实际系统中，标签与基站各自使用本地时钟计时，存在未知的时钟偏移与频率漂移，若仅通过单向或简单的双向通信难以直接得到准确的 $T_{\mathrm{prop}}$。DS-TWR 方法通过在两个节点之间往返交换多条消息，并将本地测得的时间戳打包传输，实现对时钟偏差的消除。
+其中 $d$ 为两节点之间的真实距离。
 
-如\autoref{fig:twr_process}所示，设备 A（标签）与设备 B（基站）在一次 DS-TWR 过程中交换三条消息 $M_1$、$M_2$ 与 $M_3$。在该过程中，双方分别记录如下时间戳：
+在实际系统中，标签与各基站分别使用本地时钟计时，通常存在静态时钟偏移和频率漂移。如果仅依靠单向时间戳，很难区分传播时间与时钟偏移，从而无法直接根据\eqref{eq:tof_basic} 准确估计 $d$。双边双向测距（DS-TWR）方法通过在两个节点之间往返交换多条消息，并同时携带本地测得的时间戳，在消除时钟偏差的基础上估计传播时间。
+
+如\autoref{fig:twr_process} 所示，设备 A（标签）与设备 B（基站）在一次 DS-TWR 测距过程中交换三条消息 $M_1$、$M_2$ 与 $M_3$。两侧分别记录如下时间戳：
 \begin{itemize}
-    \item 设备 A：发送消息 $M_1$ 的时间 $T_{M1\_tx}$，接收消息 $M_2$ 的时间 $T_{M2\_rx}$，发送消息 $M_3$ 的时间 $T_{M3\_tx}$；
-    \item 设备 B：接收消息 $M_1$ 的时间 $T_{M1\_rx}$，发送消息 $M_2$ 的时间 $T_{M2\_tx}$，接收消息 $M_3$ 的时间 $T_{M3\_rx}$。
+    \item 设备 A：发送 $M_1$ 的时间 $T_{M1\_tx}$，接收 $M_2$ 的时间 $T_{M2\_rx}$，发送 $M_3$ 的时间 $T_{M3\_tx}$；
+    \item 设备 B：接收 $M_1$ 的时间 $T_{M1\_rx}$，发送 $M_2$ 的时间 $T_{M2\_tx}$，接收 $M_3$ 的时间 $T_{M3\_rx}$。
 \end{itemize}
 
 \begin{figure}[htbp]
@@ -223,70 +230,58 @@ UWB 测距的核心思想是利用无线信号在空间传播的飞行时间估�
         T_{\mathrm{round}1} &= T_{M2\_rx} - T_{M1\_tx}, &
         T_{\mathrm{reply}1} &= T_{M2\_tx} - T_{M1\_rx}, \\
         T_{\mathrm{round}2} &= T_{M3\_rx} - T_{M2\_tx}, &
-        T_{\mathrm{reply}2} &= T_{M3\_tx} - T_{M2\_rx},
+        T_{\mathrm{reply}2} &= T_{M3\_tx} - T_{M2\_rx}.
     \end{aligned}
-    \label{eq:twr_round_reply_def}
+    \label{eq:twr_round_reply_prop}
 \end{equation}
-其中 $T_{\mathrm{round}i}$ 由单端时钟测得，$T_{\mathrm{reply}i}$ 则由另一端时钟测得，因此单独使用任一量都不可避免地包含时钟偏移和漂移的影响。将信号传播过程表示为“单程传播时间 $T_{\mathrm{prop}}$ 与本端应答延时之和”，可得两次往返测量的理想时序关系：
+在忽略硬件处理时延随机波动的情况下，两次往返的时间关系可写为
 \begin{equation}
     \begin{aligned}
         T_{\mathrm{round}1} &= 2 T_{\mathrm{prop}} + T_{\mathrm{reply}1}, \\
         T_{\mathrm{round}2} &= 2 T_{\mathrm{prop}} + T_{\mathrm{reply}2},
     \end{aligned}
-    \label{eq:twr_round_reply_prop}
-\end{equation}
-即每一次完整的往返时长由两倍的单程传播时间和一次应答延时共同构成。
-
-若直接由\autoref{eq:twr_round_reply_prop} 计算 $T_{\mathrm{prop}}$，仍然需要准确获知 $T_{\mathrm{reply}1}$ 与 $T_{\mathrm{reply}2}$，而这两个量本身受对端时钟偏移影响。DS-TWR 的关键在于利用两次往返测量的组合消除时钟偏差，并得到 $T_{\mathrm{prop}}$ 的闭式估计。首先将\autoref{eq:twr_round_reply_prop} 两式相乘，有
-\begin{equation}
-    \begin{aligned}
-        T_{\mathrm{round}1} T_{\mathrm{round}2}
-        &= \bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1}\bigr)
-           \bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}2}\bigr) \\
-        &= 4T_{\mathrm{prop}}^{2}
-           + 2T_{\mathrm{prop}}\bigl(T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr)
-           + T_{\mathrm{reply}1} T_{\mathrm{reply}2}.
-    \end{aligned}
-    \label{eq:twr_round_product}
-\end{equation}
-将\autoref{eq:twr_round_product} 两边同时减去 $T_{\mathrm{reply}1} T_{\mathrm{reply}2}$ 得到
-\begin{equation}
-    T_{\mathrm{round}1} T_{\mathrm{round}2} - T_{\mathrm{reply}1} T_{\mathrm{reply}2}
-    = 2T_{\mathrm{prop}}\bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr).
-    \label{eq:twr_round_minus_reply}
-\end{equation}
-另一方面，将\autoref{eq:twr_round_reply_prop} 左右两式相加可得
-\begin{equation}
-    \begin{aligned}
-        T_{\mathrm{round}1} + T_{\mathrm{round}2} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}
-        &= (2T_{\mathrm{prop}} + T_{\mathrm{reply}1})
-         + (2T_{\mathrm{prop}} + T_{\mathrm{reply}2})
-         + T_{\mathrm{reply}1} + T_{\mathrm{reply}2} \\
-        &= 4T_{\mathrm{prop}} + 2\bigl(T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr) \\
-        &= 2\bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr).
-    \end{aligned}
     \label{eq:twr_round_sum}
 \end{equation}
-将\autoref{eq:twr_round_minus_reply} 右端中的公因子
-$\bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr)$
-用\autoref{eq:twr_round_sum} 表达，可解得单程传播时间的闭式估计为
+即每一次完整往返由两倍的单程传播时间和一次应答延时组成。
+
+为便于后续推导，定义往返时间差和应答延时差：
 \begin{equation}
-    \widehat{T}_{\mathrm{prop}}
-    = \frac{T_{\mathrm{round}1}\,T_{\mathrm{round}2} - T_{\mathrm{reply}1}\,T_{\mathrm{reply}2}}
-    {T_{\mathrm{round}1} + T_{\mathrm{round}2} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}}.
+    \Delta T_{\mathrm{round}}
+    = T_{\mathrm{round}1} - T_{\mathrm{round}2},\qquad
+    \Delta T_{\mathrm{reply}}
+    = T_{\mathrm{reply}1} - T_{\mathrm{reply}2},
+    \label{eq:twr_round_minus_reply}
+\end{equation}
+同时定义往返时间与应答延时的差积：
+\begin{equation}
+    P
+    =
+    T_{\mathrm{round}1} T_{\mathrm{round}2}
+    - T_{\mathrm{reply}1} T_{\mathrm{reply}2}.
+    \label{eq:twr_round_product}
+\end{equation}
+将\eqref{eq:twr_round_sum} 代入并消去未知的时钟偏差，可得到单程传播时间的估计值
+\begin{equation}
+    \hat T_{\mathrm{prop}}
+    =
+    \frac{P}{T_{\mathrm{round}1} + T_{\mathrm{round}2}
+             + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}},
     \label{eq:Tprop_hat}
 \end{equation}
-可见，\autoref{eq:Tprop_hat} 仅由两端各自测得的往返时长与应答延时构成，不显式依赖双方时钟的绝对偏移，从而在一定程度上抵消了时钟误差对 TOF 估计的影响。
-
-最后，将\autoref{eq:Tprop_hat} 代入距离模型\autoref{eq:tof_basic}，即可得到单次 DS-TWR 过程中的测距估计值：
+进而给出距离的估计
 \begin{equation}
-    \hat{d} = c \, \widehat{T}_{\mathrm{prop}} ,
-    \label{eq:distance_hat}
+    \hat d = c \, \hat T_{\mathrm{prop}}.
+    \label{eq:Tprop_multi}
 \end{equation}
-其中 $\hat{d}$ 为基于 DS-TWR 的 UWB 测距结果。实际系统中，$c$ 根据介质折射率进行有效传播速度标定，$\widehat{T}_{\mathrm{prop}}$ 则由硬件计时分辨率与同步精度共同决定。相比仅依赖单次往返时序的简单 TWR，DS-TWR 在无需全局时钟同步的前提下，能够更稳健地抑制时钟偏移与频率漂移引入的系统性误差，为后续的多基站定位与滤波融合提供了更可靠的测距结果。
+在此过程中，各时间量均由 DS-TWR 的时间戳计算得到，不需要显式估计两侧时钟的偏移量和频率偏差，在硬件实现上较为简洁。
 
 \subsection{多基站高效型 TWR 测距方法}
-在实际空地协同任务中，为在一轮测距周期内同时获得标签（UAV）到多个基站（UGV）的距离，若对每个基站分别执行一次完整的 DS-TWR，将导致通信开销与标签发射次数随基站数量线性增加，难以满足高动态场景下的高频更新需求。为此，本文在单基站 DS-TWR 的基础上使用了一种“单次轮询、多站顺序应答、单次结束帧”的多基站高效型 TWR 策略。该策略通过消息复用与时隙轮询，在一次测距周期内完成对 $K$ 个基站的测距，使整体消息数由传统的 $3K$ 条降至 $K+2$ 条，从而显著降低空口负载与标签侧发射次数，并将测距频率提升至百赫兹量级。其时序结构如\autoref{fig:multi_anchor_twr} 所示。
+
+在空地协同系统中，一架 UAV 需要同时与多辆 UGV 上的 UWB 基站进行测距，以提升几何可观测性并获得鲁棒的多边定位结果。如果简单地对每个基站独立执行 DS-TWR 流程，标签需要频繁收发消息，不仅空口利用率低，而且会显著增加标签侧的能耗。
+
+为此，本文在 DS-TWR 的基础上使用多基站高效型 TWR 协议。基本思想是由标签发起一次“轮询测距”，将自身时间基准广播给所有可见基站，各基站按照预定时隙顺序依次应答，标签在一个测距周期内即可获得多组往返时间和应答延时，从而在一次周期内完成对多个基站的测距更新。
+
+多基站测距的时序结构如\autoref{fig:multi_anchor_twr} 所示。标签首先在时刻 $t^{\mathrm{A}}_{\mathrm{poll}}$ 发送 \texttt{poll} 帧，所有基站在接收到该帧后按照各自预分配的时隙进行应答，最终由标签在一个周期内集中处理从各基站返回的时间戳信息。
 
 \begin{figure}[htbp]
     \centering
@@ -295,193 +290,123 @@ $\bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr)$
     \label{fig:multi_anchor_twr}
 \end{figure}
 
-多基站高效型 TWR 的消息流程与时隙调度可概括如下。首先，标签轮询：标签在时刻 $t^{\mathrm{A}}_{\mathrm{poll,tx}}$ 发送 \texttt{poll} 广播帧，宣布新一轮测距周期开始，所有基站在接收该帧后进入本轮测距流程。其次，基站顺序应答：第 $i$ 个基站在接收 \texttt{poll} 的时刻 $t^{\mathrm{B}_i}_{\mathrm{poll,rx}}$ 记录本地时戳，并在其预分配的时隙起始时间（相对于 \texttt{poll} 接收时刻延迟 $\Delta_i$）发送 \texttt{resp} 帧，其发送时刻记为 $t^{\mathrm{B}_i}_{\mathrm{resp,tx}}$，标签端接收该帧的时刻为 $t^{\mathrm{A}}_{\mathrm{resp,rx}}(i)$。为避免不同基站应答发生碰撞，$\Delta_i$ 由固定时隙长度 $T_{\mathrm{slot}}$ 与时间裕度 $\tau_{\mathrm{guard}}$ 构成：
+对于第 $i$ 个基站，可以从其接收和发送时间戳计算出 $T_{\mathrm{round}1}^{(i)}$、
+$T_{\mathrm{round}2}^{(i)}$、$T_{\mathrm{reply}1}^{(i)}$ 和
+$T_{\mathrm{reply}2}^{(i)}$，并代入\eqref{eq:Tprop_hat} 得到对应的单程传播时间估计
+$\hat T_{\mathrm{prop},i}$，进而得到距离估计
 \begin{equation}
-    \Delta_i = (i-1)\,T_{\mathrm{slot}} + \tau_{\mathrm{guard}}, \quad i = 1,\dots,K.
-    \label{eq:slot_delta}
-\end{equation}
-最后，标签结束帧：标签在时刻 $t^{\mathrm{A}}_{\mathrm{final,tx}}$ 发送 \texttt{final} 帧以结束本轮测距周期，各基站接收该帧的时刻记为 $t^{\mathrm{B}_i}_{\mathrm{final,rx}}$。标签可在 \texttt{final} 中携带自身关键时间戳，以便在标签端或基站端完成双向时间消歧与测距计算。
-
-对任意基站 $i$，为保持与单基站 DS-TWR 一致的量化方式，定义两段“往返时长”（round-trip time）与两段“应答延时”（reply delay），分别对应“标签视角的往返”与“基站视角的往返”：
-\begin{equation}
-    \begin{aligned}
-        T^{(i)}_{\mathrm{round}1} &= t^{\mathrm{A}}_{\mathrm{resp,rx}}(i) - t^{\mathrm{A}}_{\mathrm{poll,tx}}, &
-        T^{(i)}_{\mathrm{reply}1} &= t^{\mathrm{B}_i}_{\mathrm{resp,tx}} - t^{\mathrm{B}_i}_{\mathrm{poll,rx}}, \\
-        T^{(i)}_{\mathrm{round}2} &= t^{\mathrm{B}_i}_{\mathrm{final,rx}} - t^{\mathrm{B}_i}_{\mathrm{resp,tx}}, &
-        T^{(i)}_{\mathrm{reply}2} &= t^{\mathrm{A}}_{\mathrm{final,tx}} - t^{\mathrm{A}}_{\mathrm{resp,rx}}(i).
-    \end{aligned}
-    \label{eq:round_reply_multi}
-\end{equation}
-其中，$T^{(i)}_{\mathrm{round}1}$ 与 $T^{(i)}_{\mathrm{round}2}$ 分别表示由标签和基站本地时钟测得的两次往返时长，$T^{(i)}_{\mathrm{reply}1}$ 与 $T^{(i)}_{\mathrm{reply}2}$ 则分别为基站和标签侧的处理/应答延时。由于这些量完全由各自节点本地时钟测得，它们单独含有未知的时钟偏移与频率误差，但通过适当的组合可以消除时钟偏差对飞行时间估计的一级影响。
-
-类似于单基站 DS-TWR 的推导（\autoref{eq:Tprop_hat}），对任意基站 $i$，可得到单程传播时间 $T^{(i)}_{\mathrm{prop}}$ 的闭式估计：
-\begin{equation}
-    \widehat{T}^{(i)}_{\mathrm{prop}}
+    \hat{\mathbf{d}}
     =
-    \frac{
-        T^{(i)}_{\mathrm{round}1}\,T^{(i)}_{\mathrm{round}2}
-        - T^{(i)}_{\mathrm{reply}1}\,T^{(i)}_{\mathrm{reply}2}
-    }{
-        T^{(i)}_{\mathrm{round}1}
-        + T^{(i)}_{\mathrm{round}2}
-        + T^{(i)}_{\mathrm{reply}1}
-        + T^{(i)}_{\mathrm{reply}2}
-    }.
-    \label{eq:Tprop_multi}
-\end{equation}
-\autoref{eq:Tprop_multi} 仅依赖于往返时长和应答延时的代数组合，不显式依赖节点间的绝对时钟偏移，因此在一定程度上抑制了时钟不一致对单程传播时间估计的影响。在获得 $\widehat{T}^{(i)}_{\mathrm{prop}}$ 后，对应的距离估计可写为
-\begin{equation}
-    \hat{d}_i = c\,\widehat{T}^{(i)}_{\mathrm{prop}},
+    \bigl[\hat d_1,\dots,\hat d_M\bigr]^\top
+    =
+    c \,
+    \bigl[\hat T_{\mathrm{prop},1},\dots,\hat T_{\mathrm{prop},M}\bigr]^\top,
     \label{eq:dist_multi}
 \end{equation}
-其中 $c$ 为电磁波在当前介质中的有效传播速度。通过对 $i=1,\dots,K$ 逐一进行同样的计算，标签在一个测距周期内即可同时获得其到所有基站的距离估计 $\hat{d}_i$，为后续多边定位提供距离测量值。
+其中 $M$ 为参与本轮测距的基站数量。通过合理调节测距周期与时隙长度，可在保证空口不发生冲突的前提下，将单基站测距扩展为多基站高频测距，同时降低标签侧收发次数，实现高频率与低功耗之间的平衡。
 
-从时间开销角度来看，设本轮包含 $K$ 个基站，应答阶段最大片长近似为 $K\,T_{\mathrm{slot}}$，则单周期时长可估计为
-\begin{equation}
-    T_{\mathrm{cycle}}
-    \approx
-    T_{\mathrm{air}}(\texttt{poll})
-    + K\,T_{\mathrm{slot}}
-    + T_{\mathrm{air}}(\texttt{final})
-    + T_{\mathrm{guard}},
-    \label{eq:cycle}
-\end{equation}
-对应的定位更新频率为
-\begin{equation}
-    f_{\mathrm{upd}} \approx \frac{1}{T_{\mathrm{cycle}}} ,
-    \label{eq:freq}
-\end{equation}
-其中 $T_{\mathrm{air}}(\cdot)$ 表示对应帧在空口传输的时间，$T_{\mathrm{guard}}$ 为整体防碰撞与防误差的安全时间裕度。通过合理设计时隙长度 $T_{\mathrm{slot}}$ 与时间裕度 $T_{\mathrm{guard}}$，在保证基站应答不发生冲突的前提下，可以将 $f_{\mathrm{upd}}$ 提升至百赫兹量级，从而满足空地协同系统在高动态飞行与机动条件下对高频定位更新的需求。
+\section{基于移动基站的空地相对定位方法}
+\label{sec:ag_loc}
 
-综上，多基站高效型 TWR 在保持对称 DS-TWR 时钟消偏特性的基础上，通过单次轮询与顺序时隙应答机制，实现了测距消息数量与标签侧发射次数的显著压缩，在空口带宽受限和机载功耗受限的条件下，仍能提供高频率、多基站的测距能力，为后续基于动态 UWB 基站的空地协同定位奠定了可靠的测距基础。
-
-\section{基于移动基站的空地相对定位方法} \label{sec:ag_loc}
-
-基于上一节得到的 UWB 测距结果，假设在统一全局坐标系下已知每辆 UGV 在当前测量时刻的位姿，由此可以计算出其上 UWB 基站的三维坐标集合 $\{\mathbf{a}_i\in\mathbb{R}^3\}_{i=1}^M$，其中 $M$ 为可用 UWB 锚点的数量；UAV 上部署的标签则获得与各基站之间的距离量测 $\{\tilde d_i\}_{i=1}^M$。本节在此基础上估计 UAV 在同一全局坐标系中的位置初值 $\mathbf{p}\in\mathbb{R}^3$，作为后续滤波融合的状态输入。
+本节在多基站测距结果的基础上，首先构建 UWB 多边定位模型，给出基于三锚点的闭式解与多锚点情况下的最小二乘估计；随后引入 ESKF 算法，将多边定位结果与机载 IMU 里程计进行融合，得到与 UGV SLAM 地图对齐的 UAV 位姿估计。
 
 \subsection{基于 UWB 的多边定位方法}
 
-多边定位（Multilateration, MLAT）\cite{sidorenko2016multilateration} 的基本思想，是利用多个已知位置的锚点与未知点之间的距离观测构建几何约束，并由此求解未知点的位置。在本系统中，锚点坐标由 UGV 的 LiDAR-SLAM 给出，未知点为 UAV 上的 UWB 标签。忽略测距噪声的理想情况下，UWB 观测可写为一组球面约束：
+设在统一的世界坐标系下，UGV 端运行 LiDAR-SLAM，给出各 UWB 基站的坐标
+$\{\mathbf{a}_i\}_{i=1}^{M}$，UAV 上的 UWB 标签位置为 $\mathbf{p}\in\mathbb{R}^3$，
+第 $i$ 个基站与标签之间的距离估计为 $\hat d_i$。忽略测距噪声的理想情况下，有
 \begin{equation}
-    \bigl\|\mathbf{p} - \mathbf{a}_i\bigr\|_2 = \hat{d}_i, 
+    \bigl\|\mathbf{p} - \mathbf{a}_i\bigr\|_2 = \hat{d}_i,
     \qquad i = 1,\dots,M,\quad M \ge 3,
     \label{eq:uwb_range_model}
 \end{equation}
-其中 $\hat{d}_i$ 为上一节得到的距离估计。在实际应用中，因为存在测距噪声与偏差\autoref{eq:uwb_range_model} 仅在统计意义上成立，后续将通过最小二乘法进行补偿。
+即标签点位于以各基站为圆心、$\hat d_i$ 为半径的一组球面上。
 
-为便于理解\autoref{eq:uwb_range_model} 所表达的几何关系，\autoref{fig:mlat_2d} 以二维情形示意了三锚点多边定位的基本原理：三个已知锚点位置 $\{\mathbf{a}_1,\mathbf{a}_2,\mathbf{a}_3\}$ 构成三个以 $\hat{d}_i$ 为半径的圆，它们的交点给出未知点 $\mathbf{p}$ 的候选位置。
+在最简单的三锚点情形下，可以构造局部坐标系并给出闭式求解。选取其中任意三个不共线锚点 $\mathbf{a}_1,\mathbf{a}_2,\mathbf{a}_3$，定义
+\begin{equation}
+    \begin{aligned}
+        \mathbf{e}_x &= 
+        \frac{\mathbf{a}_2 - \mathbf{a}_1}{\|\mathbf{a}_2 - \mathbf{a}_1\|_2},
+        \\
+        \mathbf{v} &= \mathbf{a}_3 - \mathbf{a}_1
+        - \bigl((\mathbf{a}_3 - \mathbf{a}_1)^\top \mathbf{e}_x\bigr)\mathbf{e}_x,
+        \\
+        \mathbf{e}_y &= \frac{\mathbf{v}}{\|\mathbf{v}\|_2},\qquad
+        \mathbf{e}_z = \mathbf{e}_x \times \mathbf{e}_y,
+        \\
+        d &= \|\mathbf{a}_2 - \mathbf{a}_1\|_2,\qquad
+        \alpha = (\mathbf{a}_3 - \mathbf{a}_1)^\top \mathbf{e}_x,\\
+        \beta &= (\mathbf{a}_3 - \mathbf{a}_1)^\top \mathbf{e}_y.
+    \end{aligned}
+    \label{eq:mlat_basis}
+\end{equation}
+在该坐标系下，标签的位置可写为
+\begin{equation}
+    \mathbf{p}
+    = \mathbf{a}_1 + x \mathbf{e}_x + y \mathbf{e}_y + z \mathbf{e}_z.
+    \label{eq:p_local_coords}
+\end{equation}
+由三球面约束\eqref{eq:uwb_range_model} 可推得
+\begin{equation}
+    \begin{aligned}
+        x &= \frac{\hat{d}_1^{\,2} - \hat{d}_2^{\,2} + d^2}{2d}, \\
+        y &= 
+        \frac{\hat{d}_1^{\,2} - \hat{d}_3^{\,2} + \alpha^2 + \beta^2}{2\beta}
+        - \frac{\alpha}{\beta}\,x, \\
+        z &= \pm \sqrt{\hat{d}_1^{\,2} - x^2 - y^2},
+    \end{aligned}
+    \label{eq:xyz_three_spheres}
+\end{equation}
+其中根号内若为负，说明三球在几何上并不相交，通常意味着锚点几何退化或测距误差过大，需要更换锚点组合。由\eqref{eq:p_local_coords} 与\eqref{eq:xyz_three_spheres} 可以得到两个候选解
+\begin{equation}
+    \mathbf{p}_\pm
+    =
+    \mathbf{a}_1 + x \mathbf{e}_x + y \mathbf{e}_y \pm z \mathbf{e}_z,
+    \label{eq:two_candidates}
+\end{equation}
+分别对应于三球交线上的上下两点。
+
+为消除该“上下模糊性”，可以利用先验轨迹或高度信息进行判别。设上一时刻的先验估计为
+$\hat{\mathbf{p}}_{\mathrm{prior}}$，则两个候选解的残差可定义为
+\begin{equation}
+    r_\pm
+    =
+    \bigl\|\mathbf{p}_\pm - \hat{\mathbf{p}}_{\mathrm{prior}}\bigr\|_2^2,
+    \label{eq:ambiguity_residual}
+\end{equation}
+选择残差较小的解作为当前时刻的多边定位结果，从而在不引入复杂优化的前提下实现闭式解歧义。
+
+在 $M>3$ 的一般情形下，多边定位可表述为带噪球面约束下的非线性最小二乘问题：
+\begin{equation}
+    \hat{\mathbf{p}}
+    =
+    \arg\min_{\mathbf{p}}
+    \sum_{i=1}^{M}
+    \left(
+        \bigl\|\mathbf{p} - \mathbf{a}_i\bigr\|_2 - \hat d_i
+    \right)^2.
+    \label{eq:ls}
+\end{equation}
+实际计算中，则采用三锚点闭式解作为初值，再利用迭代最小二乘或高斯–牛顿法进行少量迭代即可收敛，从而兼顾计算效率和鲁棒性。
+
+为直观说明多边定位的几何关系，\autoref{fig:mlat_2d} 给出了二维场景下三锚点多边定位的示意图。
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.7\linewidth]{chapter_2/多边定位.png}
-    \caption{二维情况下基于三圆交会的多边定位示意图}
+    \caption{二维三锚点多边定位几何示意图}
     \label{fig:mlat_2d}
 \end{figure}
 
-首先，考虑利用三个锚点构造解析解。当 $M \ge 3$ 时，可从 $\{\mathbf{a}_i,\hat{d}_i\}$ 中任取三个锚点及其观测 $(\mathbf{a}_1,\hat{d}_1)$、$(\mathbf{a}_2,\hat{d}_2)$、$(\mathbf{a}_3,\hat{d}_3)$，在三维空间中构造一组局部正交基。定义
-\begin{equation}
-    \begin{aligned}
-        \mathbf{e}_x &= \frac{\mathbf{a}_2 - \mathbf{a}_1}{\bigl\|\mathbf{a}_2 - \mathbf{a}_1\bigr\|_2}, 
-        & d &= \bigl\|\mathbf{a}_2 - \mathbf{a}_1\bigr\|_2, \\
-        \alpha &= \mathbf{e}_x^\top(\mathbf{a}_3 - \mathbf{a}_1), 
-        & \tilde{\mathbf{e}}_y &= (\mathbf{a}_3 - \mathbf{a}_1) - \alpha\,\mathbf{e}_x, \\
-        \mathbf{e}_y &= \frac{\tilde{\mathbf{e}}_y}{\bigl\|\tilde{\mathbf{e}}_y\bigr\|_2}, 
-        & \mathbf{e}_z &= \mathbf{e}_x \times \mathbf{e}_y, \\
-        \beta &= \mathbf{e}_y^\top(\mathbf{a}_3 - \mathbf{a}_1), &&
-    \end{aligned}
-    \label{eq:mlat_basis}
-\end{equation}
-其中 $\mathbf{e}_x,\mathbf{e}_y,\mathbf{e}_z$ 为以 $\mathbf{a}_1$ 为原点建立的右手正交坐标系基向量，$d$ 为锚点 $1$ 与锚点 $2$ 之间的距离，$\alpha,\beta$ 则描述锚点 $3$ 在该局部坐标系中的投影分量。将未知位置 $\mathbf{p}$ 在该局部坐标系中表示为
-\begin{equation}
-    \mathbf{p} = \mathbf{a}_1 + x \,\mathbf{e}_x + y \,\mathbf{e}_y + z \,\mathbf{e}_z,
-    \label{eq:p_local_coords}
-\end{equation}
-并将其分别代入关于 $(\mathbf{a}_1,\hat{d}_1)$、$(\mathbf{a}_2,\hat{d}_2)$、$(\mathbf{a}_3,\hat{d}_3)$ 的三个球面方程，可得到关于 $(x,y,z)$ 的代数方程组。根据三球交会的经典推导，可得
-\begin{equation}
-    \begin{aligned}
-        x &= \frac{\hat{d}_1^{\,2} - \hat{d}_2^{\,2} + d^2}{2d}, \\
-        y &= \frac{\hat{d}_1^{\,2} - \hat{d}_3^{\,2} + \alpha^2 + \beta^2}{2\beta} - \frac{\alpha}{\beta}\,x, \\
-        z &= \pm \sqrt{\hat{d}_1^{\,2} - x^2 - y^2}.
-    \end{aligned}
-    \label{eq:xyz_three_spheres}
-\end{equation}
-若根号项为负，则说明三球在几何上并不相交，通常意味着锚点几何退化，如近同心、近共线或测距误差过大，此时应更换锚点组合或转而采用线性法。在 $\hat{d}_1^{\,2} - x^2 - y^2 \ge 0$ 时，\autoref{eq:xyz_three_spheres} 给出两个候选解，对应于三球交线上的上下两点。由\autoref{eq:p_local_coords} 可恢复三维空间中的两个候选位置：
-\begin{equation}
-    \mathbf{p}^{(1,2)} = \mathbf{a}_1 + x\,\mathbf{e}_x + y\,\mathbf{e}_y \pm z\,\mathbf{e}_z.
-    \label{eq:two_candidates}
-\end{equation}
-
-在存在两个几何候选解的情况下，可引入第四个锚点 $(\mathbf{a}_4,\hat{d}_4)$ 来消除二义性。分别计算
-\begin{equation}
-    \varepsilon^{(k)} = \bigl|\bigl\|\mathbf{p}^{(k)} - \mathbf{a}_4\bigr\|_2 - \hat{d}_4\bigr|, \quad k=1,2,
-    \label{eq:ambiguity_residual}
-\end{equation}
-并选择残差更小的候选解作为当前的估计位置。
-
-除了解析三球交会方法外，当 $M \ge 4$ 时，还可以通过“平方差消元”将\autoref{eq:uwb_range_model} 线性化，得到线性最小二乘形式。对任意参考锚点索引 $k$，考虑锚点 $i$ 与锚点 $k$ 的两条球面方程，相减并展开可消去 $\|\mathbf{p}\|_2^2$ 项，从而得到
-\begin{equation}
-    2(\mathbf{a}_i - \mathbf{a}_k)^\top \mathbf{p}
-    = \|\mathbf{a}_i\|_2^2 - \|\mathbf{a}_k\|_2^2 + \hat{d}_k^{\,2} - \hat{d}_i^{\,2},
-    \qquad i \neq k.
-\end{equation}
-将上述线性约束对所有 $i\neq k$ 进行堆叠，可写为矩阵形式
-\begin{equation}
-    \mathbf{A}\,\mathbf{p} = \mathbf{b},
-\end{equation}
-其中 $\mathbf{A}$ 的每一行为 $2(\mathbf{a}_i - \mathbf{a}_k)^\top$，$\mathbf{b}$ 的对应元素为右端差值。若满足$\mathrm{rank}(\mathbf{A}) = 3$，则标准最小二乘解为
-\begin{equation}
-    \hat{\mathbf{p}}_{\mathrm{LS}}
-    =
-    \bigl(\mathbf{A}^\top \mathbf{A}\bigr)^{-1}\mathbf{A}^\top \mathbf{b}.
-    \label{eq:ls}
-\end{equation}
-当锚点近共面导致 $\mathrm{rank}(\mathbf{A}) = 2$ 时，\autoref{eq:ls} 在三维空间中不再具有唯一解。此时可以先在锚点所在平面上求解平面内坐标 $(x,y)$，然后利用距平面上某一锚点的测距值恢复高度分量。例如，以第 $i$ 个锚点为参考，在平面坐标系中已知锚点坐标 $(x_i,y_i)$ 与未知点 $(x,y)$，则高度分量的两个候选值为
-\begin{equation}
-    z_i^{(\pm)} = \pm \sqrt{\hat{d}_i^{\,2} - (x - x_i)^2 - (y - y_i)^2},
-\end{equation}
-再通过多锚点之间的一致性检查选取合理的符号，从而恢复三维位置 $\mathbf{p}$。若锚点相对结构出现几乎共线的情况，则需要在重新规划 UGV 编队。
-
-在测距噪声具有非均匀特性的情况下，简单的普通最小二乘法会对噪声较大的观测值赋予过高权重。此时可以引入对角权阵 $\mathbf{W} = \mathrm{diag}(w_i)$，以测距方差为依据设置权重，得到加权最小二乘解
-\begin{equation}
-    \hat{\mathbf{p}}_{\mathrm{WLS}}
-    =
-    \bigl(\mathbf{A}^\top \mathbf{W} \mathbf{A}\bigr)^{-1}
-    \mathbf{A}^\top \mathbf{W} \mathbf{b}.
-\end{equation}
-
-综上所述，本文在实际应用中使用三球交会与加权线性最小二乘两类方法：当前锚点几何结构良好且可用测距数量适中时，优先采用三球交会给出解析候选解，并利用第四个锚点进行二义性解的消除；当出现几何退化、测距数量较多时，则退回到加权最小二乘法计算。整体多边定位流程可概括为\autoref{alg:uwb_mlat} 所示。在实际应用中，UWB 多变定位的结果在z轴上的误差较大难以直接使用，所以常结合激光高度测量计对高度进行修正，以提高z轴方向上的定位精度和稳定性。
-
-\begin{algorithm}[htbp]
-  \begin{algorithmic}
-    \REQUIRE $\{\mathbf{a}_i\}_{i=1..M}$（由各 UGV 位姿插值得到的锚点坐标），$\{\hat{d}_i\}_{i=1..M}$（UAV 与各锚的 UWB 测距结果）
-    \ENSURE $\hat{\mathbf{p}}$（UAV 位置估计）
-    \STATE 预处理：剔除无效或明显异常的 $\hat{d}_i$，检测锚点几何是否存在严重退化问题，如同心、近共线或近共面
-    \IF{$M \ge 4$ 且几何条件较好}
-      \STATE 从中选取若干组三锚点组合，按\autoref{eq:mlat_basis}--\autoref{eq:two_candidates} 计算候选解 $\mathbf{p}^{(k)}$
-      \STATE 利用额外锚点依据\autoref{eq:ambiguity_residual} 计算残差，消除二义性与部分退化解
-    \ELSIF{$M = 3$ 且三球相交}
-      \STATE 按\autoref{eq:mlat_basis}--\autoref{eq:two_candidates} 直接求解，并结合高度先验选取一解
-    \ENDIF
-    \IF{解析解不存在或可信度不足}
-      \STATE 基于全部有效锚点构造线性方程 $\mathbf{A}\mathbf{p}=\mathbf{b}$
-      \STATE 根据测距置信度构造权阵 $\mathbf{W}$，求解加权最小二乘解 $\hat{\mathbf{p}}_{\mathrm{WLS}}$
-      \IF{锚点接近共面}
-        \STATE 在平面内先解 $(x,y)$，再利用测距正根恢复高度分量 $z$
-      \ENDIF
-      \STATE 将 $\hat{\mathbf{p}}_{\mathrm{WLS}}$ 作为当前位置估计
-    \ELSE
-      \STATE 将解析解 $\mathbf{p}^{(k^\ast)}$ 作为当前位置估计
-    \ENDIF
-    \STATE \textbf{return} $\hat{\mathbf{p}}$
-  \end{algorithmic}
-  \caption{\label{alg:uwb_mlat}基于多边定位的 UAV 位置估计流程}
-\end{algorithm}
+基于上述多边定位过程，可以得到每个测距周期内 UAV 上 UWB 标签在 UGV LiDAR-SLAM 坐标系下的三维位置估计，为后续 ESKF 融合提供输入。
 
 \subsection{基于 ESKF 的无人机位姿估计}
 
-在上一节多边定位输出的 UAV 世界坐标位置观测基础上，结合机载 IMU 提供的高频惯性测量，本文采用 ESKF \cite{eskf} 进行无人机的实时位姿估计。ESKF 通过使用名义状态与小误差进行建模，将姿态误差限制在线性化局部的最小参数空间，在四元数单位约束与大角度机动条件下仍能保持滤波的一致性；同时，其结构天然适配 IMU 高频预测与UWB 低频、异步绝对位置校正的融合模式，计算负载较低，适合实时应用。滤波最终输出的位姿定义在 UGV 的 SLAM 世界坐标系中，为后续共享地图与协同规划提供统一的状态输入。
+在上一小节中，多边定位已经在 UGV 的 SLAM 世界坐标系下给出了 UAV 上 UWB 标签的三维位置观测。基于此，本文将机载 IMU 的高频惯性测量与“多边定位得到的离散位置观测”进行融合，采用误差状态扩展卡尔曼滤波实现 UAV 的实时位姿估计。
 
-首先给出状态与量测模型。对名义状态与误差状态进行分别建模，名义状态定义为
+ESKF 通过分别维护名义状态和误差状态，用三维小角向量表示姿态扰动，既避免了直接对四元数线性化的奇异性问题，又保持了滤波在大角度机动时的数值稳定性。滤波输出的 UAV 位姿统一表达在 UGV SLAM 世界坐标系下，为后续共享地图与协同规划提供一致的状态输入。
+
+名义状态定义为
 \begin{equation}
     \mathbf{x}
     =
@@ -494,7 +419,7 @@ $\bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr)$
     \,\bigr],
     \label{eq:eskf_state}
 \end{equation}
-其中 $\mathbf{p} \in \mathbb{R}^3$、$\mathbf{v} \in \mathbb{R}^3$ 分别为世界坐标系下的位置与速度，$\mathbf{q} \in \mathbb{H}$ 为从机体系到世界系的单位四元数，$\mathbf{b}_a,\mathbf{b}_g \in \mathbb{R}^3$ 分别为加速度计与陀螺仪的偏移。IMU 量测模型写作
+其中 $\mathbf{p} \in \mathbb{R}^3$、$\mathbf{v} \in \mathbb{R}^3$ 分别为世界坐标系下的位置与速度，$\mathbf{q} \in \mathbb{H}$ 为从机体系到世界系的单位四元数，$\mathbf{b}_a,\mathbf{b}_g \in \mathbb{R}^3$ 分别为加速度计与陀螺仪偏置。IMU 测量模型写作
 \begin{align}
     \tilde{\mathbf{a}} 
     &= \mathbf{R}(\mathbf{q})^\top\bigl(\dot{\mathbf{v}} - \mathbf{g}\bigr) + \mathbf{b}_a + \mathbf{n}_a, 
@@ -503,7 +428,9 @@ $\bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr)$
     &= \boldsymbol\omega + \mathbf{b}_g + \mathbf{n}_g,
     \label{eq:imu_gyr}
 \end{align}
-其中 $\mathbf{R}(\mathbf{q})$ 为由四元数 $\mathbf{q}$ 对应的方向余弦矩阵，$\mathbf{g} = [0,0,-g]^\top$ 为世界系下的重力向量，$\tilde{\mathbf{a}}$、$\tilde{\boldsymbol\omega}$ 分别为加计与陀螺原始数据，$\mathbf{n}_a,\mathbf{n}_g$ 为高斯噪声，$\boldsymbol\omega$ 为机体系下的原始角速度。上一小节多边定位在时刻 $t_k$ 提供 UWB 位置观测，建模为
+其中 $\mathbf{R}(\mathbf{q})$ 为由四元数 $\mathbf{q}$ 对应的方向余弦矩阵，$\mathbf{g} = [0,0,-g]^\top$ 为世界系下重力向量，$\tilde{\mathbf{a}}$、$\tilde{\boldsymbol\omega}$ 为 IMU 原始读数，$\mathbf{n}_a,\mathbf{n}_g$ 为零均值高斯噪声，$\boldsymbol\omega$ 为机体系角速度。
+
+多边定位在离散时刻 $t_k$ 给出 UAV 在世界系下的三维位置观测，建模为
 \begin{equation}
     \mathbf{z}_k^{\mathrm{uwb}}
     =
@@ -512,15 +439,15 @@ $\bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr)$
     \mathbf{n}_{\mathrm{uwb}} \sim \mathcal{N}(\mathbf{0},\mathbf{R}_{\mathrm{uwb}}),
     \label{eq:uwb_meas}
 \end{equation}
-其中 $\mathbf{R}_{\mathrm{uwb}}$ 为由经验标定得到的位置观测噪声协方差。
+其中 $\mathbf{R}_{\mathrm{uwb}}$ 为根据实验标定得到的位置观测噪声协方差。可以将 $\mathbf{z}_k^{\mathrm{uwb}}$ 理解为“伪 GPS”形式的绝对位置量测，用于对 IMU 积分产生的漂移进行周期性校正。
 
-接下来给出名义系统方程及其离散传播形式。将 IMU 读数去偏后得到
+为构造名义状态传播模型，将 IMU 读数去偏得到
 \begin{equation}
     \mathbf{a}_m = \tilde{\mathbf{a}} - \mathbf{b}_a,\qquad
     \boldsymbol\omega_m = \tilde{\boldsymbol\omega} - \mathbf{b}_g,
     \label{eq:imu_debias}
 \end{equation}
-将其作为系统输入，名义状态的连续时间运动学模型为
+并将其作为系统输入。名义状态的连续时间运动学模型为
 \begin{align}
     \dot{\mathbf{p}} &= \mathbf{v}, 
     \label{eq:dyn_p} \\
@@ -539,9 +466,9 @@ $\bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr)$
     \dot{\mathbf{b}}_g = \mathbf{n}_{bg},
     \label{eq:dyn_bias}
 \end{align}
-其中 $[\cdot]_\times$ 为将三维向量映射为反对称矩阵的算子，$\mathbf{n}_{ba},\mathbf{n}_{bg}$ 为零均值随机游走噪声。在实际实现中，采用零阶保持（ZOH）近似，在采样间隔 $\Delta t$ 内令输入常值，并对\autoref{eq:dyn_p}–\autoref{eq:dyn_bias} 进行数值积分，即可从时刻 $t_{k-1}$ 的后验名义状态 $\hat{\mathbf{x}}_{k-1|k-1}$ 得到时刻 $t_k$ 的先验名义状态 $\hat{\mathbf{x}}_{k|k-1}$。
+其中 $[\cdot]_\times$ 为将三维向量映射为反对称矩阵的算子，$\mathbf{n}_{ba},\mathbf{n}_{bg}$ 为零均值随机游走噪声。在实际实现中，假设采样间隔 $\Delta t$ 内输入保持常值，对\eqref{eq:dyn_p}–\eqref{eq:dyn_bias} 进行数值积分即可从时刻 $t_{k-1}$ 的后验名义状态 $\hat{\mathbf{x}}_{k-1|k-1}$ 得到时刻 $t_k$ 的先验名义状态 $\hat{\mathbf{x}}_{k|k-1}$。
 
-误差状态用于捕捉名义状态与真实状态之间的小偏差，其定义为
+误差状态用于描述真实状态与名义状态之间的小偏差，定义为
 \begin{equation}
     \delta\mathbf{x}
     =
@@ -554,13 +481,13 @@ $\bigl(2T_{\mathrm{prop}} + T_{\mathrm{reply}1} + T_{\mathrm{reply}2}\bigr)$
     \,\bigr],
     \label{eq:error_state}
 \end{equation}
-其中 $\delta\boldsymbol\theta \in \mathbb{R}^3$ 为小角向量，用左乘扰动的方式表示姿态误差，即真实四元数可近似表示为
+其中 $\delta\boldsymbol\theta \in \mathbb{R}^3$ 为小角向量。采用“左乘扰动”方式表示姿态误差，真实四元数近似为
 \begin{equation}
     \mathbf{q}_{\mathrm{true}}
     \approx
     \exp\bigl(\tfrac{1}{2}\delta\boldsymbol\theta\bigr) \otimes \mathbf{q},
 \end{equation}
-$\otimes$ 为四元数乘法。线性化后，误差状态的连续时间动力学可写为
+$\otimes$ 为四元数乘法。对名义系统进行线性化后，可得到误差状态的连续时间动力学
 \begin{equation}
     \dot{\delta\mathbf{x}}
     =
@@ -569,13 +496,13 @@ $\otimes$ 为四元数乘法。线性化后，误差状态的连续时间动力�
     \mathbf{n} = \bigl[\mathbf{n}_a,\ \mathbf{n}_g,\ \mathbf{n}_{ba},\ \mathbf{n}_{bg}\bigr],
     \label{eq:error_dyn}
 \end{equation}
-其中系统矩阵 $\mathbf{F}$ 与噪声输入矩阵 $\mathbf{G}$ 采用块矩阵形式：
+其中系统矩阵 $\mathbf{F}$ 与噪声输入矩阵 $\mathbf{G}$ 为
 \begin{equation}
     \mathbf{F}
     =
     \begin{bmatrix}
         \mathbf{0} & \mathbf{I} & \mathbf{0} & \mathbf{0} & \mathbf{0} \\
-        \mathbf{0} & \mathbf{0} & -\mathbf{R}(\mathbf{q})[\mathbf{a}_m]_\times & -\mathbf{R}(\mathbf{q}) & \mathbf{0} \\
+        \mathbf{0} & \mathbf{0} & -\mathbf{R}(\mathbf{q})[\mathbf{a}_m]_\times & -\mathbf{R}(\mathbf{q}) & \mathbf{0} \\[2pt]
         \mathbf{0} & \mathbf{0} & -[\boldsymbol\omega_m]_\times & \mathbf{0} & -\mathbf{I} \\
         \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0} \\
         \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0}
@@ -592,7 +519,7 @@ $\otimes$ 为四元数乘法。线性化后，误差状态的连续时间动力�
     \end{bmatrix}.
     \label{eq:F_G}
 \end{equation}
-设连续噪声协方差矩阵为 $\mathbf{Q}_c$，则在采样间隔 $\Delta t$ 内，误差状态的离散转移矩阵与离散噪声协方差可由
+设连续噪声协方差为 $\mathbf{Q}_c$，则在采样间隔 $\Delta t$ 内，误差状态离散转移矩阵 $\boldsymbol\Phi$ 与离散噪声协方差 $\mathbf{Q}_d$ 可写为
 \begin{equation}
     \boldsymbol\Phi = \exp(\mathbf{F}\Delta t),\qquad
     \mathbf{Q}_d
@@ -600,10 +527,10 @@ $\otimes$ 为四元数乘法。线性化后，误差状态的连续时间动力�
     \int_0^{\Delta t}
         \exp(\mathbf{F}\tau)\,\mathbf{G}\mathbf{Q}_c\mathbf{G}^\top
         \exp(\mathbf{F}\tau)^\top
-    \,\mathrm{d}\tau
+    \,\mathrm{d}\tau.
     \label{eq:disc}
 \end{equation}
-得到。协方差按标准预测公式传播：
+实际实现中通常采用一阶近似或数值方法对\eqref{eq:disc} 进行计算。协方差预测为
 \begin{equation}
     \mathbf{P}_{k|k-1}
     =
@@ -612,7 +539,7 @@ $\otimes$ 为四元数乘法。线性化后，误差状态的连续时间动力�
     \label{eq:covprop}
 \end{equation}
 
-当 UWB 多边定位在时刻 $t_k$ 提供\autoref{eq:uwb_meas} 所示的位置观测时，观测函数对误差状态的线性化形式为
+当在时刻 $t_k$ 得到\eqref{eq:uwb_meas} 所示的位置观测时，观测函数对误差状态的线性化为
 \begin{equation}
     \mathbf{H}_k
     =
@@ -624,7 +551,7 @@ $\otimes$ 为四元数乘法。线性化后，误差状态的连续时间动力�
     \mathbf{z}_k^{\mathrm{uwb}} - \hat{\mathbf{p}}_{k|k-1},
     \label{eq:meas_lin}
 \end{equation}
-即仅对位置分量施加直接观测。根据扩展卡尔曼滤波的更新公式，首先计算创新协方差与卡尔曼增益：
+即量测仅直接作用于位置分量。创新协方差与卡尔曼增益为
 \begin{equation}
     \mathbf{S}_k
     =
@@ -636,11 +563,12 @@ $\otimes$ 为四元数乘法。线性化后，误差状态的连续时间动力�
     \mathbf{P}_{k|k-1}\mathbf{H}_k^\top \mathbf{S}_k^{-1},
     \label{eq:gain}
 \end{equation}
-然后得到误差状态估计修正量
+从而得到误差状态的修正量
 \begin{equation}
     \delta\hat{\mathbf{x}}_k = \mathbf{K}_k\,\mathbf{y}_k.
 \end{equation}
-ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零偏采用向量加法，姿态采用小旋量的指数映射左乘原四元数：
+
+ESKF 采用“误差注入”的方式更新名义状态：对位置、速度与零偏采用向量加法，对姿态采用小旋量的指数映射左乘原四元数：
 \begin{align}
     \hat{\mathbf{p}}_{k|k} &= \hat{\mathbf{p}}_{k|k-1} + \delta\hat{\mathbf{p}}, \\
     \hat{\mathbf{v}}_{k|k} &= \hat{\mathbf{v}}_{k|k-1} + \delta\hat{\mathbf{v}}, \\
@@ -661,13 +589,14 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
     \label{eq:joseph}
 \end{equation}
 
-在初始化与坐标一致性方面，系统首先利用静止阶段的 IMU 数据估计初始姿态：通过加速度计平均值估计俯仰与横滚角，偏航角则根据短时陀螺积分得到；初始速度设置为零，位置初始化为首次多边定位结果。UGV 的 SLAM 世界坐标系被选为统一参考坐标系，UWB 多边定位的结果和 ESKF 的状态估计均在该坐标系下表示，从而保证空地系统间坐标的一致性与可对齐性。
+在初始化与坐标对齐方面，系统首先利用静止阶段的 IMU 数据估计初始姿态：通过加速度计平均值估计俯仰与横滚角，偏航角由短时间内的陀螺积分得到；初始速度设为零，位置初始化为首次多边定位的结果。UGV 的 SLAM 世界坐标系被选作统一参考坐标系，多边定位输出的位置观测和 ESKF 的状态估计均在该坐标系下表示，从而保证空地系统间坐标的一致性和地图的可对齐性。
 
-综上所述，本文基于误差状态扩展卡尔曼滤波构建了“IMU 高频预测 + UWB 多边定位低频校正”的空地相对位姿估计模块。该模块既利用了 IMU 在短时间尺度上的高动态响应，又通过 UWB 提供的绝对位置信息抑制长期漂移，实现了在 UGV SLAM 世界坐标系下的实时、高精度 UAV 位姿估计，为后续共享环境建图与可见性驱动协同规划提供稳定可靠的状态输入。
+由此构建的 ESKF 模块以 IMU 为主导进行高频预测，以多边定位提供的低频绝对位置观测进行校正，实现了在 UGV SLAM 世界坐标系下 UAV 实时、高精度的相对位姿估计，为后续共享环境建图与可见性驱动协同规划提供了稳定可靠的状态输入。
 
-\section{基于栅格占据图的共享环境感知} \label{sec:env_share}
+\section{基于栅格占据图的共享环境感知}
+\label{sec:env_share}
 
-本节在统一世界坐标系下构建并共享三维栅格占据图（3D occupancy grid）。将经过 SLAM 处理并转换到世界系的点云投影到同一体素空间中，采用对数几率（log-odds）形式进行增量贝叶斯更新，从而实现跨平台、可增量同步的三维环境表示。栅格占据图结构简单，易于融合多种传感器输入，并且支持基于体素的可见性查询与碰撞检测，是后续可见性约束与协同规划的基础地图表示。
+为了在空地平台之间共享感知信息，并为后续协同规划提供统一的环境表示，本节在 UGV LiDAR-SLAM 的基础上构建三维栅格占据图，并介绍基于局部地图和感知区域的多机器人环境共享方法。
 
 \subsection{点云到三维占据栅格的增量构建}
 
@@ -762,10 +691,10 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
         \mathbf{p}\in\mathbb{R}^2\ \Big|\ 
         \bigl\|\mathbf{p}-\mathbf{p}^g_i(t)\bigr\|_\infty
         \le \tfrac{l}{2}
-    \Bigr\}.
+    \Bigr\},
     \label{eq:Qi}
 \end{equation}
-类似地，以 UAV 为中心、边长为 $l$ 的感知区域为
+其中 $l$ 为方形区域的边长。类似地，以 UAV 为中心、边长为 $l$ 的感知区域为
 \begin{equation}
     Q^a(t)
     =
@@ -798,9 +727,10 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
 \end{equation}
 其中 $N$ 为参与协同的 UGV 数量。当同一栅格在不同时刻被不同 UGV 更新时，采用“时间戳优先”的策略，在冲突栅格处保留最新一次更新结果，以保证地图的一致性与时效性。
 
-在三维情形下，可将\autoref{eq:Qi} 和 \autoref{eq:Qa} 中的平面方形区域推广为 $\mathbb{R}^3$ 中的边长为 $l$ 的立方体感知窗口，将连续空间 $\mathbf{p}$ 替换为对应的体素索引，实现体素级的子图裁剪与世界系对齐融合。UAV 以自身为中心维护一个三维立方体窗口，按需从各 UGV 拉取与该窗口重叠的局部子图，并在本地将其融合到统一的三维栅格中。借助这一机制，可以在显著降低带宽开销的前提下，维持 UAV 周围局部三维占据图的实时性、完整性和跨平台一致性，为后续可见性评估与协同规划提供可靠的环境输入。
+在三维情形下，可将\autoref{eq:Qi} 和 \autoref{eq:Qa} 中的平面方形区域推广为 $\mathbb{R}^3$ 中的边长为 $l$ 的立方体感知窗口，将连续空间 $\mathbf{p}$ 替换为对应的体素索引，实现体素级的子图裁剪与世界系对齐融合。UAV 以自身为中心维护一个三维立方体窗口，按需从各 UGV 拉取与该窗口重叠的局部子图，并在本地将其融合到统一的三维栅格中。借助这一机制，可以在显著降低带宽开销的前提下，维持 UAV 周围局部三维占据图的实时性、完整性和跨平台一致性。
 
-\section{定位实验与结果分析} \label{sec:localization_result}
+\section{定位实验与结果分析}
+\label{sec:localization_result}
 
 本节围绕前文提出的基于动态 UWB 基站的空地协同定位方法，开展对比实验，对系统在不同配置下的定位精度与稳定性进行定量评估。实验主要关注两类结果：一类是仅依赖 UWB 多边定位所得的原始位置估计 $\hat{\mathbf{p}}_{\mathrm{uwb}}(t)$，另一类是将多边定位结果与机载 IMU 通过 ESKF 融合后得到的滤波估计 $\hat{\mathbf{p}}(t)$ 与 $\hat{\mathbf{v}}(t)$。在固定基站场景中，通过运动标签实验，分析 UWB 测距误差与几何布局对原始定位精度的影响，并以真值轨迹为基准比较滤波前后的位置误差变化；在移动基站场景中，通过固定标签、UGV 携带基站运动的方式验证动态基站条件下多边定位的几何一致性与误差水平。综合上述结果，从测距残差、位置与速度误差统计以及误差随时间变化等方面，系统评估动态 UWB 基站与 ESKF 融合对提高空地系统相对定位精度和鲁棒性的作用。
 
@@ -808,11 +738,11 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
 
 本节在室内搭建 $8\times 8\times 3\,\mathrm{m}^3$ 的无遮挡实验场地，对所提出的动态 UWB 定位框架进行验证。所有实验均在统一的世界坐标系下进行，该坐标系由 UGV 端运行的 FAST-LIO2 \cite{xu2022fastlio2} SLAM 系统定义。UWB 基站统一安装于 UGV 车体上，其在世界坐标系下的位姿由 SLAM 实时估计；UAV 端在质心位置安装单个 UWB 标签，并采用飞控内置的 IMU 模块，IMU 采样频率约为 $200\,\mathrm{Hz}$，UWB 测距更新频率约为 $100\,\mathrm{Hz}$。系统内各数据源通过 ROS 框架完成时间同步，保证在同一时间轴上进行传感器融合与误差评估。
 
-固定基站场景中，将四台 UGV 停放在场地四角，形成边长约为 $6\,\mathrm{m}$ 的正方形布设。四个 UWB 基站分别固定在四台 UGV 上，利用 FAST-LIO2 输出的位姿作为基站坐标，从而在世界系下获得 $\{\mathbf{a}_i\}_{i=0}^3$，基站按逆时针方向依次放置，此时 UGV 不运动，满足“静态锚点”条件。移动基站场景中，保持基站安装方式与放置顺序不变，由 UGV 携带基站在场地内按照预设轨迹运动，SLAM 实时给出 $\mathbf{a}_i(t)$。在这两类场景下，分别设计“标签静止、基站移动”和“标签移动、基站静止”的实验，用于考察固定锚点和动态锚点条件下的定位性能。单次实验期间持续记录 UWB 测距数据、UWB 多边定位结果以及基于 ESKF 的融合位姿估计。
+固定基站场景中，将四台 UGV 停放在场地四角，形成边长约为 $6\,\mathrm{m}$ 的正方形布设。四个 UWB 基站分别固定在四台 UGV 上，利用 SLAM 输出的位姿作为基站坐标，从而在世界系下获得 $\{\mathbf{a}_i\}_{i=0}^3$，基站按逆时针方向依次放置，此时 UGV 不运动，满足“静态锚点”条件。移动基站场景中，保持基站安装方式与放置顺序不变，由 UGV 携带基站在场地内按照预设轨迹运动，SLAM 实时给出 $\mathbf{a}_i(t)$。在这两类场景下，分别设计“标签静止、基站移动”和“标签移动、基站静止”的实验，用于考察固定锚点和动态锚点条件下的定位性能。单次实验期间持续记录 UWB 测距数据、UWB 多边定位结果以及基于 ESKF 的融合位姿估计。
 
 真值位姿由动作捕捉系统提供，得到毫米级精度的位置轨迹 $\mathbf{p}^{\mathrm{gt}}(t)$。速度真值 $\mathbf{v}^{\mathrm{gt}}(t)$ 通过对真值位置进行数值差分获得。为了突出平面内定位性能，评价时重点考察 $x$、$y$ 轴上的误差。
 
-在评价指标方面，针对不同定位方法（例如仅基于 UWB 多边定位的原始解以及基于 UWB–IMU 融合的 ESKF 结果），统一采用以下度量进行比较：一是给出估计轨迹与真值轨迹在平面内的可视化对比；二是统计平面内欧氏位置误差的时序变化、均方根误差（RMSE）与最大误差；三是在存在速度估计的场景下，进一步分析平面内速度误差及其 RMSE。后文中不再区分具体实现形式，统一用 $\hat{\mathbf{p}}(t)$ 表示被评估的估计位置轨迹，用 $\hat{\mathbf{v}}(t)$ 表示对应的速度估计。
+在评价指标方面，针对不同定位方法统一采用以下度量进行比较：一是给出估计轨迹与真值轨迹在平面内的可视化对比；二是统计平面内欧氏位置误差的时序变化、均方根误差（RMSE）与最大误差；三是在存在速度估计的场景下，进一步分析平面内速度误差及其 RMSE。后文中不再区分具体实现形式，统一用 $\hat{\mathbf{p}}(t)$ 表示被评估的估计位置轨迹，用 $\hat{\mathbf{v}}(t)$ 表示对应的速度估计。
 
 \subsection{固定基站条件下的定位性能评估}
 
@@ -821,7 +751,7 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.95\linewidth]{chapter_2/fixed_xy_traj_2x2.pdf}
-  \caption{固定基站条件下的 $xy$ 平面轨迹对比}
+  \caption{固定基站条件下 UAV 在 $xy$ 平面上的轨迹对比}
   \label{fig:fixed_xy_traj}
 \end{figure}
 
@@ -832,7 +762,7 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.95\linewidth]{chapter_2/fixed_pos_vel_3sub.pdf}
-  \caption{固定基站条件下的位置与速度对比}
+  \caption{固定基站条件下位置与速度误差随时间的变化}
   \label{fig:pos_vel_error_compare}
 \end{figure}
 
@@ -840,12 +770,12 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
 
 \begin{table}[htbp]
     \centering
-    \caption{固定基站条件下位置与速度误差统计}
+    \caption{固定基站条件下定位误差统计}
     \label{tab:fixed_error_stats}
     \begin{tabularx}{\linewidth}{c *{5}{X<{\centering}}} 
         \toprule
         方法 & $\mathrm{RMSE}_{xy}$/cm & $e_{\max,xy}$/cm & $\mathrm{RMSE}_{v_x}$/m/s & $\mathrm{RMSE}_{v_y}$/m/s & $e^{v}_{\max}$/m/s \\ 
-        \midrule 
+        \midrule
         UWB 多边定位 & 2.97 & 13.8 & --    & --    & --    \\
 
         ESKF 滤波     & 2.95 & 11.9 & 0.031 & 0.049 & 0.294 \\ 
@@ -878,7 +808,7 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
   \label{fig:moving_xy_inside_outside}
 \end{figure}
 
-\autoref{fig:moving_xy_inside_outside} 给出了两种工况下四辆 UGV 与 UAV 在 $xy$ 平面的轨迹分布情况。可以看到，在“包络内”工况中，四辆 UGV 沿正方形轨迹移动，而 UAV 的 ESKF 轨迹始终围绕静止标签的真实位置附近小范围波动，呈现出近似各向同性的微小扰动，且整体偏差有限。在“包络外”工况中，UGV 轨迹保持不变，而标签被布置在正方形外侧右方位置，此时 UAV 的 ESKF 轨迹在该参考点附近出现明显拉长的云团分布，并在靠近基站编队一侧方向上表现出更大的伸展，反映出几何精度稀释（GDOP）增大的影响。
+\autoref{fig:moving_xy_inside_outside} 给出了两种工况下四辆 UGV 与 UAV 在 $xy$ 平面的轨迹分布情况。可以看到，在“包络内”工况中，四辆 UGV 沿正方形轨迹移动，而 UAV 的 ESKF 轨迹始终围绕静止标签的真实位置附近小范围波动，呈现出近似各向同性的微小扰动，且整体偏差有限。在“包络外”工况中，UGV 轨迹保持不变，而标签被布置在正方形外侧右方位置，此时 UAV 的 ESKF 轨迹在该参考点附近出现明显拉长的云团分布，并在靠近基站编队一侧方向上表现出更大的伸展。
 
 \begin{figure}[htbp]
   \centering
@@ -943,19 +873,12 @@ ESKF 通过“误差注入”的方式更新名义状态：位置、速度与零
 
 综合上述结果，在相同的 UGV 运动轨迹与测距配置下，让标签位于基站凸包内部能够显著改善移动基站场景下的几何可观测性，使得 UWB–ESKF 融合在基站大范围运动时仍能保持较为稳定的平面位置估计；而当标签脱离基站构成的凸包后，定位误差随时间放大并出现明显漂移。
 
-\section{本章小结} \label{sec:summary_loc}
+\section{本章小结}
+\label{sec:summary_loc}
 
-本章围绕空地协同系统中无人机与地面无人车之间的相对定位问题，构建了一套基于动态 UWB 基站的协同定位方法，并从测距建模、多边定位、惯性融合以及环境共享等多个层面进行了系统设计与实验验证。
+本章围绕空地协同系统中 UAV 与 UGV 之间的相对定位问题，构建了一套基于动态 UWB 基站的协同定位方法。首先，在\autoref{sec:uwb_range} 中基于 UWB 信号的飞行时间原理，给出了双边双向测距（DS-TWR）的时序关系和单程传播时间估计方法，并进一步设计了多基站高效 TWR 协议，在较低空口开销和标签功耗的前提下获得多基站高频测距结果。随后在\autoref{sec:ag_loc} 中，将多基站测距结果转化为 UWB 多边定位约束，给出了三锚点闭式解和多锚点最小二乘求解，并在ESKF框架下将其与机载 IMU 里程计融合，得到与 UGV LiDAR-SLAM 地图对齐的高频 UAV 位姿估计。接着在\autoref{sec:env_share} 中，利用 UGV 端点云构建统一的三维栅格占据图，并通过局部子图和感知区域实现多机器人之间的环境信息共享，为后续可见性查询与避障规划提供统一环境表达。
 
-首先，在\autoref{sec:uwb_range} 中，基于 UWB 信号的飞行时间（TOF）原理，给出了双边双向测距（DS-TWR）的时序关系与单程传播时间的闭式估计公式，并在此基础上设计了“单次轮询、多站顺序应答、单次结束帧”的多基站高效 TWR 测距策略。该策略通过统一轮询与时隙调度机制，在保持对称 DS-TWR 消除时钟偏差能力的前提下，显著减少了标签侧发射次数与总体消息数量，使系统在多基站配置下仍能达到百赫兹量级的测距更新频率，从而满足空地协同定位对高频测距与低能耗的需求。
-
-随后，在\autoref{sec:ag_loc} 中，针对由多辆 UGV 搭载的 UWB 基站与 UAV 标签构成的移动测距网络，给出了基于多边定位的无人机位置初值求解方法，并在此基础上构建了基于 ESKF 的无人机位姿估计框架。在多边定位部分，通过多球交会与线性最小二乘两类方法相结合，显式分析了锚点几何布设对解的可观性与稳定性的影响。在惯性融合部分，引入“名义状态 + 误差状态”建模，将 IMU 高频预测与 UWB 低频绝对位置观测在统一的误差状态 EKF 中紧耦合，实现了在 UGV SLAM 世界坐标系下 UAV 实时位姿的连续输出，为后续协同规划提供了统一且高频的状态输入。
-
-在\autoref{sec:env_share} 中，面向多机器人环境感知与地图共享问题，构建了基于三维栅格占据图的环境表示与同步机制。通过对数几率形式的体素增量更新、膨胀与遗忘机制，相比直接点云叠加能够在保证局部细节的同时抑制历史拖影；通过以统一世界坐标系为参考的“局部子图裁剪 + 世界系对齐融合”策略，在显著降低通信负载的前提下，实现了多辆 UGV 与 UAV 之间的占据地图共享，为后续的可见性约束建模、碰撞检测和栅格级 LoS 判定提供了统一环境载体。
-
-最后，本章在固定基站与移动基站两类典型场景下，对所提出方法的定位性能进行了实验评估。在固定基站条件下，通过四基站静止布设与动作捕捉真值对比，验证了 UWB 多边定位在无遮挡场景中即可达到厘米级平面位置精度，ESKF 在此基础上进一步提供了平滑且与真值一致的速度估计，实现了约 $10\,\mathrm{cm}$ 量级的位置精度和 $0.1\,\mathrm{m/s}$ 量级的速度精度，满足后续协同规划对基准精度的要求。在移动基站条件下，通过四辆 UGV 围绕静止标签运动的实验，分别考察了“标签位于基站凸包内部”和“标签位于凸包外部”两种几何布设。结果表明，当标签处于基站构成的凸包内部时，即便基站大范围运动，UWB–ESKF 融合仍能维持较小的平面位置波动；而当标签脱离凸包后，平面位置误差与漂移显著增大。这一现象验证了动态基站场景中几何可观性的关键作用，也为后续章节在协同规划中引入可见性与定位约束提供了实验依据。
-
-综上所述，本章完成了基于动态 UWB 基站的空地协同定位平台设计与实验验证，在统一世界坐标系下实现了高频、高精度的 UAV 相对位姿估计以及多机器人占据地图共享，为后续内容中基于可见性的协同规划方法提供了可靠的状态估计与环境建图基础。
+通过固定基站与移动基站两类实验，本章验证了所提出动态基站协同定位框架的有效性。实验结果表明，该方法在复杂环境下能够在一定时间窗口内保持厘米级到分米级的位置精度，同时具备较好的鲁棒性和可扩展性。
 
 
 \chapter{基于点云聚类的协同规划方法研究}
