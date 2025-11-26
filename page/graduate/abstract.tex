@@ -1,5 +1,28 @@
 \cleardoublepage
 \chapternonum{摘要}
 
+空地协同系统结合了无人机的空中视角与高机动性以及无人车的地面负载与作业能力，在搜索救援、环境探索等复杂任务中展现出巨大的应用潜力。随着应用场景的日益复杂，如何在未知环境中实现空地系统的高精度相对定位、主动维持视线（LoS）通信链路以及生成安全高效的协同轨迹，成为制约其大规模应用的关键瓶颈。现有的协同定位与规划方法往往依赖于良好的通信与通视条件，忽略了障碍物遮挡对协同性能的显著影响，且缺乏将定位精度需求与协同运动规划进行统一建模的系统框架。为此，本文主要研究了未知环境下空地异构集群的相对定位架构与基于可见性的协同轨迹规划算法。本文的主要工作如下：
+
+（1）提出了一种基于动态UWB基站的空地相对定位方法。针对传统UWB定位依赖固定基站且部署繁琐的问题，本文将UWB基站部署于移动的无人车上，以无人车构建的激光SLAM全局坐标系为统一参考。设计了高效的多基站双向测距（TWR）时序协议，将测距频率提升至百赫兹级；进一步，采用误差状态扩展卡尔曼滤波（ESKF）算法，将多边定位解算的位置初值与机载IMU数据进行紧耦合，实现了无人机在无GPS环境下的高频、无偏相对位姿估计。此外，构建了基于三维栅格占据图的共享感知机制，为空地协同规划提供了统一的状态与环境输入。
+
+（2）提出了一种基于点云聚类的可见性驱动协同规划方法。针对障碍物遮挡导致的视线中断与碰撞风险，本文首先利用DBSCAN算法对环境点云进行聚类，并提取最小包络椭圆柱作为障碍物的凸几何近似；进一步，结合离散控制障碍函数（DCBF）构建可微的几何避障约束，并设计空地视线连通性代价与地面编队几何约束，将避障安全、可见性保持与队形稳定性统一纳入非线性模型预测控制（NMPC）框架。仿真实验表明，所提算法在稀疏至中等密度的障碍物环境中，能够实时生成平滑、安全且兼顾空地视距质量的协同轨迹。
+
+（3）提出了一种基于序列可视空间的两阶段协同规划方法。为了解决单层优化在稠密障碍物环境中求解困难、收敛性差的问题，本文构建了全局一致性规划与局部安全执行相结合的两阶段架构。全局层基于混合A*搜索生成引导路径，并构建时序化的序列可视空间（SSCP），将复杂的避障与视距约束转化为光滑的可视性代价函数，利用L-BFGS求解器快速生成满足空地可见性与队形几何要求的参考序列；局部层采用MINCO轨迹参数化方法，在严格跟踪全局参考点的同时，利用局部避障力场保证轨迹的动力学可行性与安全性。仿真与实物实验验证了该方法在复杂稠密环境下具有更高的任务成功率与鲁棒性。
+
+\vspace{1em}
+\noindent \textbf{关键词：} 空地协同系统；相对定位；轨迹规划；可见性约束；模型预测控制
+
+
 \cleardoublepage
 \chapternonum{Abstract}
+
+The air-ground collaborative system combines the aerial perspective and high maneuverability of Unmanned Aerial Vehicles (UAVs) with the payload capacity and stable operation of Unmanned Ground Vehicles (UGVs), showing great potential in complex tasks such as search and rescue and environmental exploration. With the increasing complexity of application scenarios, achieving high-precision relative positioning, actively maintaining Line-of-Sight (LoS) communication links, and generating safe and efficient collaborative trajectories in unknown environments have become key bottlenecks restricting its large-scale application. Existing collaborative localization and planning methods often rely on good communication and visibility conditions, ignoring the significant impact of obstacle occlusion on collaboration performance, and lack a systematic framework that unifies positioning accuracy requirements with collaborative motion planning. Therefore, this thesis mainly studies the relative positioning architecture based on dynamic UWB and visibility-driven collaborative trajectory planning algorithms for heterogeneous air-ground clusters in unknown environments. The main contributions of this thesis are as follows:
+
+(1) A relative air-ground positioning method based on dynamic UWB anchors is proposed. Addressing the limitation that traditional UWB positioning relies on fixed anchors and cumbersome deployment, this method deploys UWB anchors on mobile UGVs, using the LiDAR-SLAM global coordinate system constructed by UGVs as a unified reference. An efficient multi-anchor Two-Way Ranging (TWR) timing protocol is designed to increase the ranging frequency to the hundred-hertz level. Furthermore, an Error-State Extended Kalman Filter (ESKF) algorithm is adopted to tightly couple the initial position solution from multilateration with onboard IMU data, achieving high-frequency, unbiased relative pose estimation for UAVs in GPS-denied environments. In addition, a shared perception mechanism based on 3D occupancy grid maps is constructed to provide unified state and environmental inputs for air-ground collaborative planning.
+
+(2) A visibility-driven collaborative planning method based on point cloud clustering is proposed. Aiming at the risks of LoS interruption and collision caused by obstacle occlusion, this method first utilizes the DBSCAN algorithm to cluster environmental point clouds and extracts Minimum Enclosing Elliptical Cylinders (MEEC) as convex geometric approximations of obstacles. Furthermore, differentiable geometric obstacle avoidance constraints are constructed combined with Discrete Control Barrier Functions (DCBF), and air-ground LoS visibility costs and ground formation geometric constraints are designed. Safety, visibility maintenance, and formation stability are unified into a Nonlinear Model Predictive Control (NMPC) framework. Simulation experiments show that the proposed algorithm can generate smooth, safe collaborative trajectories that balance air-ground visibility quality in real-time within sparse to medium-density obstacle environments.
+
+(3) A two-stage collaborative planning method based on Sequential Star-Convex Polytopes (SSCP) is proposed. To solve the problems of difficult solution and poor convergence of single-layer optimization in dense obstacle environments, a two-stage architecture combining global consistency planning and local safe execution is constructed. The global layer generates a guide path based on Hybrid A* search and constructs temporal Sequential Star-Convex Polytopes (SSCP), transforming complex avoidance and visibility constraints into smooth visibility cost functions to quickly generate reference sequences satisfying air-ground visibility and formation geometry using an L-BFGS solver. The local layer adopts MINCO trajectory parameterization to ensure dynamic feasibility and safety using local obstacle avoidance force fields while strictly tracking global reference points. Simulation and real-world experiments verify that this method possesses higher task success rates and robustness in complex dense environments.
+
+\vspace{1em}
+\noindent \textbf{Keywords:} Air-Ground Collaborative System; Relative Localization; Trajectory Planning; Visibility Constraint; Model Predictive Control
