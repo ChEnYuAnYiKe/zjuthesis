@@ -179,7 +179,7 @@ alta 等人\cite{queralta2022vio} 通过协同视觉–惯性–UWB 方案实现
 
 第五章对全文工作进行总结与展望。总结本文在动态 UWB 支撑的空地相对定位、基于点云聚类的可见性驱动协同规划以及基于序列可视空间的两阶段规划架构等方面的主要贡献，分析当前工作的局限性，并对未来在多机器人协同感知与规划、动态任务分配以及更大规模异构系统应用等方面的研究方向进行展望。
 
-\chapter{基于动态UWB基站的协同定位方法研究}
+\chapter{基于动态UWB基站的协同定位方法研究} \label{sec:UWB_loc_method}
 
 \section{引言}
 
@@ -1582,7 +1582,7 @@ J_{\mathrm{vis}}
 \label{eq:J_vis_total}
 \end{equation}
 
-\subsection{空地队形约束构建}
+\subsection{空地队形约束构建} \label{sec:formation_constraint1}
 
 为在跟随 UAV 推进的同时保持地面编队的几何稳定性，本文从尺度、形状和空地距离三个方面对空地系统队形进行建模，如 \autoref{fig:formation_constraint} 所示。尺度约束限制任意两车之间的距离落在给定的可行带内，避免过密导致的碰撞风险和过疏造成的联络退化；形状约束使由四辆车构成的四边形接近矩形结构，抑制共线或极度扁长等退化形态；空地距离约束直接约束 UAV 与各 UGV 的相对距离，避免 UAV 长时间脱离地面编队包络，有利于保持 UWB 定位系统的可计算性。
 
@@ -1785,9 +1785,9 @@ p^{(r)}(t)=\alpha_0+\alpha_1 t+\alpha_2 t^2+\alpha_3 t^3+\alpha_4 t^4+\alpha_5 t
 \section{仿真实验} \label{sec:sim}
 本节将通过构建仿真平台对所提出的基于点云聚类的协同规划方法进行性能评估，实验重点在于验证该方法在未知障碍物环境下生成协同轨迹时系统内部可视情况和避障安全性。在不同的障碍物密度情况下对多优化目标构建的有效性进行分析，并设置消融实验来验证。
 
-\subsection{实验环境设置}
+\subsection{实验环境设置} \label{sec:gazebo_env_setting}
 
-为评估所提出协同规划方法在不同环境复杂度下的性能，本文在尺寸为 \(35\times30\times3\,\mathrm{m}^3\) 的三维仿真场地内构建稀疏障碍场景与稠密障碍场景两类环境。障碍物在整个场地范围内随机放置，稀疏环境中障碍物间平均间距约为 \(2.0\,\mathrm{m}\)，稠密环境中约为 \(1.2\,\mathrm{m}\)。空地系统由 \(1\) 架 UAV 与 \(4\) 辆 UGV 组成。初始时刻，UAV 位于环境原点处，四辆 UGV 的初始位置为 \(\mathrm{UGV}_0(-1,1)\)、\(\mathrm{UGV}_1(-1,-1)\)、\(\mathrm{UGV}_2(1,-1)\)、\(\mathrm{UGV}_3(1,1)\)。UAV 全局目标点设在场景中 \((32,0)\,\mathrm{m}\) 附近，引导空地编队穿越整个障碍区域。仿真环境基于 Gazebo 搭建，UAV 采用 PX4 的仿真模型，UGV 模型在 Nexus-4WD-Mecanum 仿真平台基础上进行修改，并搭载 Livox MID-360 LiDAR 用于模拟真实点云数据采集，仿真环境如 \autoref{fig:sim_env} 所示。
+为评估所提出协同规划方法在不同环境复杂度下的性能，本文在尺寸为 \(35\times30\times3\,\mathrm{m}^3\) 的三维仿真场地内构建稀疏障碍场景与稠密障碍场景两类环境。仿真时各机器人的位姿均采用Gazebo中提供的真值，以突出规划方法本身的性能表现，所有的计算都在一台电脑上完成。障碍物在整个场地范围内随机放置，稀疏环境中障碍物间平均间距约为 \(2.0\,\mathrm{m}\)，稠密环境中约为 \(1.2\,\mathrm{m}\)。空地系统由 \(1\) 架 UAV 与 \(4\) 辆 UGV 组成。初始时刻，UAV 位于环境原点处，四辆 UGV 的初始位置为 \(\mathrm{UGV}_0(-1,1)\)、\(\mathrm{UGV}_1(-1,-1)\)、\(\mathrm{UGV}_2(1,-1)\)、\(\mathrm{UGV}_3(1,1)\)。UAV 全局目标点设在场景中 \((32,0)\,\mathrm{m}\) 附近，引导空地编队穿越整个障碍区域。仿真环境基于 Gazebo 搭建，UAV 采用 PX4 的仿真模型，UGV 模型在 Nexus-4WD-Mecanum 仿真平台基础上进行修改，并搭载 Livox MID-360 LiDAR 用于模拟真实点云数据采集，仿真环境如 \autoref{fig:sim_env} 所示。
 
 \begin{figure}[htbp]
     \centering
@@ -1950,24 +1950,27 @@ p^{(r)}(t)=\alpha_0+\alpha_1 t+\alpha_2 t^2+\alpha_3 t^3+\alpha_4 t^4+\alpha_5 t
 
 在复杂未知环境中实现空地多机器人系统的协同规划，需要在有限算力条件下同时兼顾动力学可执行性、空地可视性和地面编队稳定性，并保证整体规划的实时性。若在全局尺度上直接以占据栅格为约束，将避障约束、可视性约束和多机耦合统一纳入单一优化问题，则状态与控制维度会随时间和机器人数量急剧增长，约束数量也随障碍物和可视性关系极速扩张，容易导致优化问题难收敛、数值求解不稳定等问题。
 
-上一章在点云聚类与最小包络椭圆柱近似的基础上，构建了基于椭圆柱几何表示和离散控制障碍函数的协同规划方法。该方法在中等稀疏环境下可以在统一 NMPC 框架中同时处理引导跟踪、避障、安全距离和编队几何等多目标，并在仿真中展现出良好的实时性。然而在障碍更加稠密或几何更加复杂的场景下，直接在全局优化问题中对每一个椭圆柱施加 DCBF 约束，会带来以下问题：其一，可行域在时间和空间上高度碎片化，导致优化容易陷入局部最优甚至不可行；其二，可见性与编队等长期几何目标与避障在同一层面进行协调，权重调节空间变窄，稳定性与可解释性下降；其三，当任务尺度或环境复杂度进一步增大时，约束数量随障碍和时间步线性增加，单次求解时间和收敛鲁棒性难以保证，从而限制了方法在更大规模、更加稠密环境中的泛化能力。
+上一章在点云聚类与最小包络椭圆柱近似的基础上，构建了基于椭圆柱几何表示和离散控制障碍函数的协同规划方法。该方法在中等稀疏环境下可以在统一 NMPC 框架中同时处理引导跟踪、避障、安全距离和编队几何等多目标，并在仿真中展现出良好的实时性。然而在障碍更加稠密或几何更加复杂的场景下，直接在全局优化问题中对每一个椭圆柱施加 DCBF 约束，会带来诸多问题，如导致优化容易陷入局部最优甚至不可行，稳定性与可解释性下降，约束数量随障碍和时间步线性增加，单次求解时间和收敛鲁棒性难以保证，从而限制了方法在更大规模、更加稠密环境中的泛化能力。
 
-为缓解上述问题并提升在稠密场景下的稳定性和对复杂环境的泛化能力，本文在上一章方法的基础上提出两阶段协同规划框架，将“全局一致性目标”和“局部安全执行目标”在时间尺度和决策层次上进行解耦。第一阶段为全局规划阶段，在共享占据栅格和统一二阶积分动力学模型的基础上，采用混合 A* 搜索生成满足速度与加速度限幅的全局引导路径，使参考轨迹在动力学上可跟踪且与任务目标方向一致。沿该引导路径进行等时采样，在每一个采样点构建包含可见性与编队约束的可视空间，并按时间顺序将这些可视空间组织为序列可视空间（Sequential Star-Convex Polytope, SSCP）：
-\begin{equation}
-    \mathrm{SSCP} = \big\{ \mathcal{V}_k \subset \mathbb{R}^3 \,\big|\, k = 0,\dots,K \big\},
-    \label{eq:sscp_def}
-\end{equation}
-其中每个 $\mathcal{V}_k$ 为一处在自由空间内部的可视集，描述了 UAV 与 UGV 在该时刻应满足的视距关系。SSCP 的形式定义如 \autoref{eq:sscp_def} 所示。由于 SSCP 已通过环境几何和占据信息排除了碰撞体素，全局阶段不再显式施加细粒度避障约束，而是将 UAV 渐近逼近引导路径、空地可见性保持以及空地队形几何稳定性作为可微代价和软约束，在滚动时域内进行中优化，从而保持问题规模紧凑并提升数值收敛稳定性。
+为缓解上述问题并提升在稠密场景下的稳定性和对复杂环境的泛化能力，本文在上一章方法的基础上提出两阶段协同规划框架，将“全局一致性目标”和“局部安全执行目标”在时间尺度和决策层次上进行解耦。第一阶段为全局规划阶段，在共享占据栅格和统一动力学模型的基础上，采用混合 A* 搜索生成满足速度与加速度限幅的全局引导路径，沿该引导路径进行等时采样，在每一个采样点构建包含可见性与编队约束的可视空间，并按时间顺序将这些可视空间组织为序列可视空间（Sequential Star-Convex Polytope, SSCP）。由于 SSCP 已通过环境几何和占据信息排除了碰撞体素，全局阶段不再施加细粒度避障约束，而是将 UAV 渐近逼近引导路径、空地可见性保持以及空地队形几何稳定性作为软约束，在滚动时域内进行中优化，从而保持问题规模紧凑并提升数值收敛稳定性。第二阶段为局部规划与跟踪阶段，面向本地执行与安全保证。全局阶段输出的其对应的离散参考位姿序列在每个控制周期内被时间参数化为 MINCO \cite{wang2022geometrically}多项式轨迹，局部跟踪器在短预测域上最小化对参考序列的同步误差，并在同一层面处理避障与控制能量问题。
 
-第二阶段为局部规划与跟踪阶段，面向本地执行与安全保证。全局阶段输出的其对应的离散参考位姿序列在每个控制周期内被时间参数化为 MINCO \cite{wang2022geometrically}多项式轨迹，局部跟踪器在短预测域上最小化对参考序列的同步误差，并在同一层面处理避障与控制能量问题。可视保持和队形几何主要由全局规划负责，局部优化则专注于避障和能量开销控制，两者通过滚动时域在时间上紧密衔接。
-
-基于上述设计，本章结构安排如下：\autoref{sec:vs+kino} 介绍序列可视空间的构建方法，包括可视空间的构建方法以及基于混合 A* 搜索的引导路径和序列可视空间生成步骤；\autoref{sec:sscp-global} 在 SSCP 上建立全局实时协同轨迹生成模型，给出优化变量初始化策略、无人机引导路点约束、序列可视空间约束以及完整的优化问题建模与求解方法；\autoref{sec:local-tracking} 围绕局部跟踪与避障，构建路径点同步跟踪约束、局部轨迹避障方法和最小能量轨迹优化模型；\autoref{sec:two-stage-arch} 从系统角度总结两阶段协同规划方法的整体架构，说明全局规划与局部执行之间的信息流；\autoref{sec:experiments} 给出仿真与实物实验结果，对比分析与上一章方法在稠密场景下的性能差异，验证两阶段框架在稳定性与泛化能力方面的优势；最后在 \autoref{sec:summary_opt2} 对本章工作进行总结。
+基于上述设计，本章结构安排如下：\autoref{sec:vs+kino} 介绍序列可视空间的构建方法，包括可视空间的构建方法以及基于混合 A* 搜索的引导路径和序列可视空间生成步骤；\autoref{sec:sscp-global} 在 SSCP 上建立全局实时协同轨迹生成模型，给出优化变量初始化策略、无人机引导路点约束、序列可视空间约束以及完整的优化问题建模与求解方法；\autoref{sec:local-tracking} 围绕局部跟踪与避障，构建路径点同步跟踪约束、局部轨迹避障方法和最小能量轨迹优化模型；\autoref{sec:two-stage-arch} 从系统角度总结两阶段协同规划方法的整体架构，说明全局规划与局部执行之间的协同关系；\autoref{sec:experiments} 给出仿真与实物实验结果，以验证两阶段框架在稳定性与泛化能力方面的优势；最后在 \autoref{sec:summary_opt2} 对本章工作进行总结。
 
 \section{序列可视空间的构建方法}\label{sec:vs+kino}
-本节给出序列可视空间（SSCP）的构建方法。首先在共享占据栅格和统一动力学模型的基础上，利用上一章第~\ref{sec:cluster_path} 节中基于混合 A* 的方法，在全局地图上得到满足速度与加速度限幅的动力学可行引导路径。该路径以无人机平台的机动能力为约束，保证每一段都可由后续执行层稳定跟踪。然后对该引导路径按照等时间间隔进行采样，形成与滚动预测域一致的离散参考序列。围绕每一个采样位姿，基于局部点云构建对应的可视空间，用于刻画该时刻 UAV 与 UGV 所应处于的“视距良好且无障碍遮挡”的空间区域。最后将这些按时间排序的可视空间串联，即得到序列可视空间 \(\mathrm{SSCP}\)，作为全局协同优化中刻画可视性的核心约束表示。
+
+本节给出序列可视空间（SSCP）的构建方法。首先在共享占据栅格和统一动力学模型的基础上，利用上一章第~\ref{sec:cluster_path} 节中基于混合 A* 的方法，在全局地图上得到满足速度与加速度限幅的动力学可行引导路径，并按等时间间隔采样得到与滚动预测域一致的参考序列。随后，围绕每一个采样位姿，基于局部点云构建对应的可视空间，用于刻画该时刻 UAV 与 UGV 所应处于的“视距良好且无障碍遮挡”的空间区域。最后将这些按时间排序的可视空间串联，形成序列可视空间 \(\mathrm{SSCP}\)，作为全局协同优化中刻画可视性的核心约束表示。
+
+\section{序列可视空间的构建方法}\label{sec:vs+kino}
+
+本节给出序列可视空间（SSCP）的构建流程。首先在共享占据栅格和统一动力学模型的基础上，利用上一章第~\ref{sec:cluster_path} 节中的混合 A* 方法，在全局地图上得到满足速度与加速度限幅的 UAV 引导路径；该路径在动力学上可跟踪。然后按与滚动预测域一致的时间间隔对引导路径进行采样，得到一系列参考位姿。围绕每个参考位姿，基于局部点云构造对应的可视空间，用于刻画该时刻 UAV 与 UGV 所应处于的“视距良好且无遮挡”的空间区域。最后按时间顺序串联各时刻的可视空间，即得到序列可视空间 $\mathrm{SSCP}$，作为全局协同优化中刻画可视性的核心表示。
 
 \subsection{可视空间的构建}
-本小节围绕引导路径等时采样得到的参考点 \(c_i\in\mathbb{R}^3\) 构建其附近的可视空间，用于在全局层面以可微方式约束可视性与遮挡。\autoref{fig:scp_construct} 以二维视角展示了单个可视空间的构建流程。图中 \(p(t)\) 与本节符号 \(c_i\) 对应，为当前引导点；半径 \(R\) 的红色虚线圆给出局部点云检索半径；更大的半径 \(r\) 为球翻转半径。绿色实心点为局部采样点，红色实心点为在球面上增广的人工点，二者组成局部点集；这些点经球翻转后得到蓝色点云，其凸包（蓝色多边形）近似可视边界。绿色星形多边形表示反变换回原空间后的星凸可视区域，位于该区域内部的点对中心 \(p(t)\) 可见，而图中箭头所示灰色多边形障碍物遮挡了部分方向，使得某些点（黄色五角星）落在可视区域之外。图中 \(x\) 与 \(\hat x\) 分别表示原空间和翻转空间中的对应点，\(d_i\) 表示点到可视边界的距离。
+
+考虑引导路径在某一采样时刻的参考点 $c_i\in\mathbb{R}^3$，在统一世界坐标系下，以 $c_i$ 为球心、半径 $R>0$ 从点云中检索局部点集
+\[
+M_v=\{m_j\}\subset\mathbb{R}^3,
+\]
+并在球面上均匀增广少量人工点，以提高方向覆盖度。可视空间构建的核心思想是：先在“球翻转空间”中对局部点集求凸包，再将其映射回原空间得到围绕 $c_i$ 的星凸可视区域，见\autoref{fig:scp_construct}。
 
 \begin{figure}[htbp]
     \centering
@@ -1976,50 +1979,46 @@ p^{(r)}(t)=\alpha_0+\alpha_1 t+\alpha_2 t^2+\alpha_3 t^3+\alpha_4 t^4+\alpha_5 t
     \label{fig:scp_construct}
 \end{figure}
 
-在统一世界坐标系下，记半径 \(R>0\) 球邻域内的局部点集为
-\[
-M_v=\{m_j\}\subset\mathbb{R}^3.
-\]
-以参考点 \(c_i\) 为球心，在半径 \(R\) 邻域内从点云中检索观测点，并在球面上均匀增广若干人工采样点，用于填补稀疏区域。定义球翻转变换 \(F:\mathbb{R}^3\to\mathbb{R}^3\)。对任意点 \(x\)，记
+对任意点 $x\in\mathbb{R}^3$，记
 \begin{equation}
 y=x-c_i,\qquad r>R,
 \end{equation}
-其中 \(r\) 为翻转半径，则球翻转定义为
+其中 $r$ 为球翻转半径，定义球翻转变换
 \begin{equation}
 \hat{x}=F(x)
-=y+2\big(r-\|y\|_2\big)\frac{y}{\|y\|_2},
+=y+2\big(r-\|y\|_2\big)\frac{y}{\|y\|_2}.
 \label{eq:ball_flip}
 \end{equation}
-当点靠近 \(c_i\) 时被推向半径 \(r\) 附近，当点接近半径 \(R\) 时变换趋近恒等。对 \(M_v\) 中的每个点做变换 \(\hat{m}_j=F(m_j)\)，在翻转空间中对所有 \(\hat{m}_j\) 计算凸包，得到多面体的 \(H\)-表示：
+当点靠近 $c_i$ 时会被“推”至半径 $r$ 附近，而位于邻域边界附近的点变换较小。对所有局部点做变换 $\hat{m}_j=F(m_j)$，在翻转空间中求其凸包，得到多面体的 $H$-表示
 \begin{equation}
-\mathcal{P}_i=\big\{\hat{x}\in\mathbb{R}^3\ \big|\ A\hat{x}\le b\big\},\qquad
-A=\begin{bmatrix}n_1^\top\\ \vdots\\ n_K^\top\end{bmatrix},\quad
-b=\begin{bmatrix}n_1^\top a_1\\ \vdots\\ n_K^\top a_K\end{bmatrix},
+\mathcal{P}_i=\big\{\hat{x}\in\mathbb{R}^3\ \big|\ A\hat{x}\le b\big\},
+\qquad
+A=\begin{bmatrix}n_1^\top\\ \vdots\\ n_K^\top\end{bmatrix},
 \label{eq:polytope_H}
 \end{equation}
-其中 \(K\) 为面数，\(n_k\in\mathbb{R}^3\) 为第 \(k\) 个面的外法向量，\(a_k\in\mathbb{R}^3\) 为该面上一点。对任意 \(\hat{x}\)，其相对于第 \(k\) 个面的有符号支持函数为
+其中 $K$ 为面数，$n_k\in\mathbb{R}^3$ 为第 $k$ 个面的外法向量，$b$ 由凸包算法给定。
+
+对任意 $\hat{x}$，定义相对于第 $k$ 个面的（有符号）支持函数
 \begin{equation}
-d_k(\hat{x})=n_k^\top(\hat{x}-a_k),\qquad k=1,\dots,K,
+d_k(\hat{x})=n_k^\top\hat{x}-\beta_k,\qquad k=1,\dots,K,
 \label{eq:face_support}
 \end{equation}
-当 \(d_k>0\) 时点在面外侧，当 \(d_k<0\) 时在多面体内部。
-
-为获得对 \(\max_k d_k(\hat{x})\) 的光滑近似方便求导，引入如下形式
+其中 $\beta_k$ 由多面体平移项吸收。令
 \begin{equation}
 \Xi(\hat{x})
 =\frac{1}{\alpha}\log\!\Big(\sum_{k=1}^{K}e^{\alpha d_k(\hat{x})}\Big),
 \qquad \alpha>0,
 \label{eq:lse_def}
 \end{equation}
-当 \(\alpha\) 增大时 \(\Xi(\hat{x})\) 渐近于 \(\max_k d_k(\hat{x})\)。原空间中的点 \(x\) 经 \(\hat{x}=F(x)\) 映射到翻转空间后，若其 \(\Xi(\hat{x})\) 取值较大，则说明点在可视边界外部或靠近边界。
+则 $\Xi(\hat{x})$ 为 $\max_k d_k(\hat{x})$ 的光滑近似：当 $\hat{x}$ 位于多面体内部时，所有 $d_k\le 0$ 且 $\Xi(\hat{x})\le 0$；当 $\hat{x}$ 超出多面体边界时，$\Xi(\hat{x})>0$。
 
-为在优化中构建可视裕度，设定最小可视距离 \(d_{\min}\geq 0\)，定义可视性违背量
+为在优化中度量相对于可视边界的裕度，设定最小可视距离 $d_{\min}\geq 0$，对原空间点 $x$ 定义可视性违背量
 \begin{equation}
 \phi(x\mid S_i)
 =d_{\min}-\Xi\big(F(x)\big),
 \label{eq:violation}
 \end{equation}
-其中 \(S_i\) 表示以 \(c_i\) 为中心的可视空间。当 \(\phi(x\mid S_i)\le 0\) 时，说明点 \(x\) 相对可视边界具有不小于 \(d_{\min}\) 的裕度；当 \(\phi(x\mid S_i)>0\) 时，说明点 \(x\) 距离可视边界不足 \(d_{\min}\)。据此构造分段光滑的可视性代价
+其中 $S_i$ 表示以 $c_i$ 为中心的可视空间。当 $\phi(x\mid S_i)\le 0$ 时，点 $x$ 在可视边界内并具有不小于 $d_{\min}$ 的裕度；当 $\phi(x\mid S_i)>0$ 时，则距离不足。基于此构造分段光滑代价
 \begin{equation}
 V_{\mathrm{scp}}(x\mid S_i)=
 \begin{cases}
@@ -2028,9 +2027,9 @@ V_{\mathrm{scp}}(x\mid S_i)=
 \end{cases}
 \label{eq:scp_penalty}
 \end{equation}
-其中 \(\lambda_{\mathrm{scp}}>0\) 为权重。三次多项式在边界处函数值与一阶导数连续，在违反程度增大时惩罚随 \(\phi^3\) 快速增长，有利于在保持数值平滑的同时提供足够的“推离”趋势。
+其中 $\lambda_{\mathrm{scp}}>0$ 为权重。该形式在边界处函数值与一阶导数连续，违背程度增大时惩罚随 $\phi^3$ 快速增长。
 
-为便于在优化中使用与求解，可进一步给出 \autoref{eq:scp_penalty} 的梯度形式。由 \autoref{eq:lse_def} 可得
+同时给出 $V_{\mathrm{scp}}$ 的梯度表示。由\autoref{eq:lse_def} 得到 softmax 权重
 \begin{equation}
 w_k(\hat{x})=\frac{e^{\alpha d_k(\hat{x})}}{\sum_{j=1}^{K}e^{\alpha d_j(\hat{x})}},\qquad 
 \bar{n}(\hat{x})=\sum_{k=1}^{K}w_k(\hat{x})\,n_k,
@@ -2041,19 +2040,19 @@ w_k(\hat{x})=\frac{e^{\alpha d_k(\hat{x})}}{\sum_{j=1}^{K}e^{\alpha d_j(\hat{x})
 \nabla_{\hat{x}}\Xi(\hat{x})=\bar{n}(\hat{x}).
 \label{eq:grad_xi_hat}
 \end{equation}
-由 \autoref{eq:ball_flip}，球翻转的雅可比为
+由球翻转定义~\eqref{eq:ball_flip}，其雅可比为
 \begin{equation}
 J_F(x)=\frac{\partial F(x)}{\partial x}
 =\Big(\frac{2r}{\|y\|_2}-1\Big)\mathbf{I}_3-\frac{2r}{\|y\|_2^{3}}\,y\,y^\top,
 \qquad y=x-c_i,
 \label{eq:Jflip}
 \end{equation}
-其中 \(\mathbf{I}_3\) 为三维单位阵。由链式法则与 \autoref{eq:violation}、\autoref{eq:grad_xi_hat}、\autoref{eq:Jflip} 得
+其中 $\mathbf{I}_3$ 为三维单位矩阵。由链式法则和~\eqref{eq:violation}–\eqref{eq:grad_xi_hat} 得
 \begin{equation}
 \nabla_x \phi(x\mid S_i)= -\,J_F(x)^\top\,\bar{n}\big(F(x)\big).
 \label{eq:grad_phi}
 \end{equation}
-进而由 \autoref{eq:scp_penalty} 的分段定义可得
+进而由\eqref{eq:scp_penalty} 得到可视代价的梯度
 \begin{equation}
 \nabla_x V_{\mathrm{scp}}(x\mid S_i)=
 \begin{cases}
@@ -2062,7 +2061,7 @@ J_F(x)=\frac{\partial F(x)}{\partial x}
 \end{cases}
 \label{eq:grad_Vscp}
 \end{equation}
-代入 \autoref{eq:grad_phi} 可写成显式形式
+代入~\eqref{eq:grad_phi} 可写为显式形式
 \begin{equation}
 \nabla_x V_{\mathrm{scp}}(x\mid S_i)=
 \begin{cases}
@@ -2071,14 +2070,12 @@ J_F(x)=\frac{\partial F(x)}{\partial x}
 \end{cases}
 \label{eq:grad_Vscp_final}
 \end{equation}
-从而在给定 \(\{n_k,a_k\}_{k=1}^{K}\)、翻转半径 \(r\)、裕度 \(d_{\min}\) 和权重 \(\lambda_{\mathrm{scp}}\) 后，可以在优化中高效计算可视空间代价及其梯度。
-
-为了直观展示基于上述流程得到的可视空间样式，\autoref{fig:vis_space_example} 给出了在不同环境和不同机器人参考位姿下构建的若干星凸可视区域示意。图中彩色多边形为各时刻的可视空间边界，灰色矩形为障碍物投影，可以看到可视区域自适应地在障碍物间“开洞”，并围绕参考点形成非规则但保持星凸性的自由区域。这些可视空间在时间上按引导路径顺序串联，即可构成后续全局优化所使用的序列可视空间。
+从而在给定 $\{n_k,\beta_k\}_{k=1}^{K}$、翻转半径 $r$、裕度 $d_{\min}$ 和权重 $\lambda_{\mathrm{scp}}$ 后，可以直接用于基于梯度的一阶优化算法。
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.6\linewidth]{chapter_4/vis_space_example.png}
-    \caption{在不同参考位姿与环境下构建的可视空间示例}
+    \includegraphics[width=0.5\linewidth]{chapter_4/vis_space_example.png}
+    \caption{不同环境与参考位姿下构建的可视空间示例}
     \label{fig:vis_space_example}
 \end{figure}
 
@@ -2092,15 +2089,15 @@ J_F(x)=\frac{\partial F(x)}{\partial x}
     \qquad t_{k+1}-t_k=\Delta t,
     \label{eq:sscp_ws}
 \end{equation}
-其中 \(\mathrm{WS}\)（Waypoint Sequence）中的每一个 \(\mathbf{p}_{\mathrm{ref}}(t_k)\) 都对应预测域内的一个离散时间步。对每个采样点，将其记为可视空间核
+其中 \(\mathrm{WS}\)（Waypoint Sequence）中的每一个 \(\mathbf{p}_{\mathrm{ref}}(t_k)\) 都对应预测域内的一个离散时间步。对每个采样点，将其记为可视空间中心
 \begin{equation}
     c_k=\mathbf{p}_{\mathrm{ref}}(t_k),\qquad k=1,\dots,H.
 \end{equation}
-在以 \(c_k\) 为中心、半径 \(R\) 的邻域内检索局部点集，并按照上一小节所述“点集检索与增广—球翻转—凸包—光滑代价”的流程构建以 \(c_k\) 为中心的可视空间 \(S_k\)。具体而言，在每个 \(k\) 上：首先从占据栅格与增量点云中提取局部点集并在球面上增广均匀采样点；随后依据 \autoref{eq:ball_flip} 对所有点进行球翻转，得到翻转点集；在翻转空间中计算凸包，获得如 \autoref{eq:polytope_H} 所示的 \(H\)-表示，并据此定义 \autoref{eq:lse_def}–\autoref{eq:scp_penalty} 的可视代价 \(V_{\mathrm{scp}}(x\mid S_k)\) 及其梯度；最后将 \((c_k,\mathcal{P}_k)\) 以及 \(R,r,d_{\min},\lambda_{\mathrm{scp}}\) 等参数打包，作为时刻 \(t_k\) 的可视空间描述。
+在以 \(c_k\) 为中心、半径 \(R\) 的邻域内检索局部点集，并按照上一小节所述的方法构建以 \(c_k\) 为中心的可视空间 \(S_k\)。具体而言，在每个 \(k\) 上：首先从占据栅格与增量点云中提取局部点集并在球面上增广均匀采样点；随后依据 \autoref{eq:ball_flip} 对所有点进行球翻转，得到翻转点集；在翻转空间中计算凸包，获得如 \autoref{eq:polytope_H} 所示的 \(H\)-表示，并据此定义 \autoref{eq:lse_def}–\autoref{eq:scp_penalty} 的可视代价 \(V_{\mathrm{scp}}(x\mid S_k)\) 及其梯度；最后将 \((c_k,\mathcal{P}_k)\) 以及 \(R,r,d_{\min},\lambda_{\mathrm{scp}}\) 等参数打包，作为时刻 \(t_k\) 的可视空间描述。
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.75\linewidth]{chapter_4/sscp.png}
+    \includegraphics[width=0.8\linewidth]{chapter_4/sscp.png}
     \caption{序列可视空间示例}
     \label{fig:sscp_example}
 \end{figure}
@@ -2117,335 +2114,421 @@ J_F(x)=\frac{\partial F(x)}{\partial x}
 \section{基于序列可视空间的全局实时协同轨迹生成} \label{sec:sscp-global}
 本节在上一节给出的引导路径与序列可视空间基础上，构建面向全局层面的实时协同轨迹生成方法。与前一章的建模思路相比，本章在全局层面不再处理基于椭圆柱的障碍物避障约束，而是将优化重点集中在两类长期一致性目标上：其一是无人机对混合 A* 引导路点的跟踪，其二是在时间序列上维持空地系统的可视性与队形的几何稳定性。与局部避障与能量抑制等问题由后续局部轨迹生成模块负责，从而显著降低全局优化的维度和约束耦合度，更好地适应滚动时域下的实时求解需求。
 
-\subsection{优化变量初始化与热启动方法}
-本小节给出预测域内状态与控制向量的初始化与热启动策略。设预测步长为 \(H\)，采样间隔为 \(\Delta t\)。在每个时间步上，每辆 UGV 包含平面位置、速度、加速度三组二维变量，共 \(6\) 个标量；每架 UAV 包含三维位置、速度、加速度三组变量，共 \(9\) 个标量。记地面车辆数量为 \(N_g\)、空中平台数量为 \(N_a\)，则单步决策维数为 \(D=6N_g+9N_a\)，预测域总维数为 \(H D\)。为与引导路径和序列可视空间一致，初始化时序与混合 A* 引导路径的时间网格严格对齐。
+% \subsection{优化变量初始化与热启动方法}
+% 本小节给出预测域内状态与控制向量的初始化与热启动策略。设预测步长为 \(H\)，采样间隔为 \(\Delta t\)。在每个时间步上，每辆 UGV 包含平面位置、速度、加速度三组二维变量，共 \(6\) 个标量；每架 UAV 包含三维位置、速度、加速度三组变量，共 \(9\) 个标量。记地面车辆数量为 \(N_g\)、空中平台数量为 \(N_a\)，则单步决策维数为 \(D=6N_g+9N_a\)，预测域总维数为 \(H D\)。为与引导路径和序列可视空间一致，初始化时序与混合 A* 引导路径的时间网格严格对齐。
 
-首先为每个时间步构造“中心轨迹”。若第 \(t\) 步对应的可视空间已成功构建，则直接采用其星凸多面体的几何中心；否则退化为引导路径在该时刻的位置。记
-\begin{equation}
-\label{eq:center_choice}
-\mathbf{c}_t=
-\begin{cases}
-\mathbf{c}_t^{\mathrm{poly}}, & \text{若可视空间 } S_t \text{ 有效},\\
-\mathbf{p}_{\mathrm{ref}}(t), & \text{否则},
-\end{cases}
-\qquad t=0,\dots,H-1,
-\end{equation}
-其中 \(\mathbf{c}_t^{\mathrm{poly}}\) 表示 \(S_t\) 的多面体中心，\(\mathbf{p}_{\mathrm{ref}}(t)\) 为混合 A* 引导路径在时刻 \(t\) 的位置。对平面分量 \(\mathbf{c}_t^{xy}\) 采用一阶差分给出中心速度初值
-\begin{equation}
-\label{eq:center_vel}
-\mathbf{v}^{\,c}_t=
-\begin{cases}
-\displaystyle \frac{\mathbf{c}_{t+1}^{xy}-\mathbf{c}_{t}^{xy}}{\Delta t}, & t=0,\dots,H-2,\\[8pt]
-\displaystyle \frac{\mathbf{c}_{t}^{xy}-\mathbf{c}_{t-1}^{xy}}{\Delta t}, & t=H-1,
-\end{cases}
-\end{equation}
-其中上标 \(xy\) 表示取位置向量的平面前两维。
+% 首先为每个时间步构造“中心轨迹”。若第 \(t\) 步对应的可视空间已成功构建，则直接采用其星凸多面体的几何中心；否则退化为引导路径在该时刻的位置。记
+% \begin{equation}
+% \label{eq:center_choice}
+% \mathbf{c}_t=
+% \begin{cases}
+% \mathbf{c}_t^{\mathrm{poly}}, & \text{若可视空间 } S_t \text{ 有效},\\
+% \mathbf{p}_{\mathrm{ref}}(t), & \text{否则},
+% \end{cases}
+% \qquad t=0,\dots,H-1,
+% \end{equation}
+% 其中 \(\mathbf{c}_t^{\mathrm{poly}}\) 表示 \(S_t\) 的多面体中心，\(\mathbf{p}_{\mathrm{ref}}(t)\) 为混合 A* 引导路径在时刻 \(t\) 的位置。对平面分量 \(\mathbf{c}_t^{xy}\) 采用一阶差分给出中心速度初值
+% \begin{equation}
+% \label{eq:center_vel}
+% \mathbf{v}^{\,c}_t=
+% \begin{cases}
+% \displaystyle \frac{\mathbf{c}_{t+1}^{xy}-\mathbf{c}_{t}^{xy}}{\Delta t}, & t=0,\dots,H-2,\\[8pt]
+% \displaystyle \frac{\mathbf{c}_{t}^{xy}-\mathbf{c}_{t-1}^{xy}}{\Delta t}, & t=H-1,
+% \end{cases}
+% \end{equation}
+% 其中上标 \(xy\) 表示取位置向量的平面前两维。
 
-为在中心轨迹周围构造合理的初始编队，对四辆 UGV 采用固定方向的交替模板并叠加随时间渐进的偏移。第 \(i\) 辆 UGV 的模板方向取自四个象限向量
-\begin{equation}
-\label{eq:fixed_dir}
-\mathbf{d}_i\in\big\{(-1,1),\,(-1,-1),\,(1,-1),\,(1,1)\big\},
-\end{equation}
-并将其单位化。第 \(t\) 步的平面偏移量定义为
-\begin{equation}
-\label{eq:offset_series}
-\boldsymbol{\delta}_{i,t}=
-\begin{cases}
-\mathbf{0}, & t=0,\\
-r_0\,\mathrm{ramp}(t)\,\mathbf{d}_i, & t\ge 1,
-\end{cases}
-\qquad 
-\mathrm{ramp}(t)=\min\!\left(1,\ \frac{t}{3}\right),
-\end{equation}
-其中 \(r_0>0\) 为期望编队半径。\(\mathrm{ramp}(t)\) 在前三个时间步内由 \(0\) 线性增长到 \(1\)，使编队在预测域前段平滑展开，避免从起点瞬间产生过大的横向分离。
+% 为在中心轨迹周围构造合理的初始编队，对四辆 UGV 采用固定方向的交替模板并叠加随时间渐进的偏移。第 \(i\) 辆 UGV 的模板方向取自四个象限向量
+% \begin{equation}
+% \label{eq:fixed_dir}
+% \mathbf{d}_i\in\big\{(-1,1),\,(-1,-1),\,(1,-1),\,(1,1)\big\},
+% \end{equation}
+% 并将其单位化。第 \(t\) 步的平面偏移量定义为
+% \begin{equation}
+% \label{eq:offset_series}
+% \boldsymbol{\delta}_{i,t}=
+% \begin{cases}
+% \mathbf{0}, & t=0,\\
+% r_0\,\mathrm{ramp}(t)\,\mathbf{d}_i, & t\ge 1,
+% \end{cases}
+% \qquad 
+% \mathrm{ramp}(t)=\min\!\left(1,\ \frac{t}{3}\right),
+% \end{equation}
+% 其中 \(r_0>0\) 为期望编队半径。\(\mathrm{ramp}(t)\) 在前三个时间步内由 \(0\) 线性增长到 \(1\)，使编队在预测域前段平滑展开，避免从起点瞬间产生过大的横向分离。
 
-在此基础上，各平台的状态初值按如下规则给出。
+% 在此基础上，各平台的状态初值按如下规则给出。
 
-\textbf{UGV 初始化。} 对每辆 UGV 及每个时间步 \(t\)：
-\begin{equation}
-\label{eq:ugv_init}
-\begin{aligned}
-&\text{若 } t=0:\quad &&\mathbf{p}^{g}_{i,0}=\mathbf{p}^{g,\mathrm{cur}}_{i,xy},\quad \mathbf{v}^{g}_{i,0}=\mathbf{v}^{g,\mathrm{cur}}_{i,xy},\quad \mathbf{a}^{g}_{i,0}=\mathbf{0},\\
-&\text{若 } t\ge 1:\quad &&\mathbf{p}^{g}_{i,t}=\mathbf{c}_{t}^{xy}+\boldsymbol{\delta}_{i,t},\quad \mathbf{v}^{g}_{i,t}=\mathbf{v}^{\,c}_t,\quad \mathbf{a}^{g}_{i,t}=\mathbf{0},
-\end{aligned}
-\end{equation}
-其中 \(\mathbf{p}^{g,\mathrm{cur}}_{i,xy}\)、\(\mathbf{v}^{g,\mathrm{cur}}_{i,xy}\) 分别为第 \(i\) 辆 UGV 当前的平面位置与速度观测。
+% \textbf{UGV 初始化。} 对每辆 UGV 及每个时间步 \(t\)：
+% \begin{equation}
+% \label{eq:ugv_init}
+% \begin{aligned}
+% &\text{若 } t=0:\quad &&\mathbf{p}^{g}_{i,0}=\mathbf{p}^{g,\mathrm{cur}}_{i,xy},\quad \mathbf{v}^{g}_{i,0}=\mathbf{v}^{g,\mathrm{cur}}_{i,xy},\quad \mathbf{a}^{g}_{i,0}=\mathbf{0},\\
+% &\text{若 } t\ge 1:\quad &&\mathbf{p}^{g}_{i,t}=\mathbf{c}_{t}^{xy}+\boldsymbol{\delta}_{i,t},\quad \mathbf{v}^{g}_{i,t}=\mathbf{v}^{\,c}_t,\quad \mathbf{a}^{g}_{i,t}=\mathbf{0},
+% \end{aligned}
+% \end{equation}
+% 其中 \(\mathbf{p}^{g,\mathrm{cur}}_{i,xy}\)、\(\mathbf{v}^{g,\mathrm{cur}}_{i,xy}\) 分别为第 \(i\) 辆 UGV 当前的平面位置与速度观测。
 
-\textbf{UAV 初始化。} 对每架 UAV 及每个时间步 \(t\)：
-\begin{equation}
-\label{eq:uav_init}
-\begin{aligned}
-&\text{若 } t=0:\quad &&\mathbf{p}^{a}_{j,0}=\mathbf{p}^{a,\mathrm{cur}}_{j},\quad \mathbf{v}^{a}_{j,0}=\mathbf{v}^{a,\mathrm{cur}}_{j},\quad \mathbf{a}^{a}_{j,0}=\mathbf{0},\\
-&\text{若 } t\ge 1:\quad &&\mathbf{p}^{a}_{j,t}=\mathbf{p}_{\mathrm{ref}}(t),\quad \mathbf{v}^{a}_{j,t}=\dot{\mathbf{p}}_{\mathrm{ref}}(t),\quad \mathbf{a}^{a}_{j,t}=\mathbf{0},
-\end{aligned}
-\end{equation}
-即在首步严格对齐当前状态估计，从第二步起将无人机的位置和速度初值直接投影到混合 A* 引导路径及其切向速度上，并将加速度初始化为零，以获得平滑且数值稳定的初始轨迹。
+% \textbf{UAV 初始化。} 对每架 UAV 及每个时间步 \(t\)：
+% \begin{equation}
+% \label{eq:uav_init}
+% \begin{aligned}
+% &\text{若 } t=0:\quad &&\mathbf{p}^{a}_{j,0}=\mathbf{p}^{a,\mathrm{cur}}_{j},\quad \mathbf{v}^{a}_{j,0}=\mathbf{v}^{a,\mathrm{cur}}_{j},\quad \mathbf{a}^{a}_{j,0}=\mathbf{0},\\
+% &\text{若 } t\ge 1:\quad &&\mathbf{p}^{a}_{j,t}=\mathbf{p}_{\mathrm{ref}}(t),\quad \mathbf{v}^{a}_{j,t}=\dot{\mathbf{p}}_{\mathrm{ref}}(t),\quad \mathbf{a}^{a}_{j,t}=\mathbf{0},
+% \end{aligned}
+% \end{equation}
+% 即在首步严格对齐当前状态估计，从第二步起将无人机的位置和速度初值直接投影到混合 A* 引导路径及其切向速度上，并将加速度初始化为零，以获得平滑且数值稳定的初始轨迹。
 
-其中\eqref{eq:center_choice}–\eqref{eq:center_vel} 使全体平台的初值与可视空间中心及全局引导趋势一致，减少优化过程中对大尺度偏移的修正；\eqref{eq:offset_series} 与 \eqref{eq:ugv_init} 通过逐步展开的小幅偏移打破多车同位姿退化，同时避免在预测初期产生过激的编队扩张，有利于可视性与编队相关代价项平稳起作用；\eqref{eq:uav_init} 则保证滚动时域在 \(t=0\) 与实时观测严格对齐，从而提高解的物理一致性。
+% 其中\eqref{eq:center_choice}–\eqref{eq:center_vel} 使全体平台的初值与可视空间中心及全局引导趋势一致，减少优化过程中对大尺度偏移的修正；\eqref{eq:offset_series} 与 \eqref{eq:ugv_init} 通过逐步展开的小幅偏移打破多车同位姿退化，同时避免在预测初期产生过激的编队扩张，有利于可视性与编队相关代价项平稳起作用；\eqref{eq:uav_init} 则保证滚动时域在 \(t=0\) 与实时观测严格对齐，从而提高解的物理一致性。
 
-当上一规划周期已经得到可行解时，可在上述初始化之上进一步采用热启动策略：将上一周期预测解沿时间轴整体前移一帧，对新出现的时间节点在相邻两帧之间做线性插值，得到初始序列 \(\{\mathbf{x}^{0}_{t},\mathbf{u}^{0}_{t}\}\)，并对超出状态或输入界限的分量投影回各自的约束区间。该热启动方式在保留上一周期轨迹时空结构的同时，与新的引导路径和可视空间自然对齐，可显著减少迭代次数并提高全局优化的实时性。
+% 当上一规划周期已经得到可行解时，可在上述初始化之上进一步采用热启动策略：将上一周期预测解沿时间轴整体前移一帧，对新出现的时间节点在相邻两帧之间做线性插值，得到初始序列 \(\{\mathbf{x}^{0}_{t},\mathbf{u}^{0}_{t}\}\)，并对超出状态或输入界限的分量投影回各自的约束区间。该热启动方式在保留上一周期轨迹时空结构的同时，与新的引导路径和可视空间自然对齐，可显著减少迭代次数并提高全局优化的实时性。
 
 \subsection{无人机引导路点约束构建}
-本小节以上一章中由混合 A* 搜索得到的离散参考序列为目标，在每个预测步约束无人机逐步逼近对应的参考状态。设预测域步数为 \(H\)，第 \(t\) 步第 \(j\) 架无人机的参考位置与速度分别为 \(\mathbf{p}^{a,\mathrm{ref}}_{j,t}\in\mathbb{R}^3\) 与 \(\mathbf{v}^{a,\mathrm{ref}}_{j,t}\in\mathbb{R}^3\)，对应的优化变量为 \(\mathbf{p}^a_{j,t}\) 与 \(\mathbf{v}^a_{j,t}\)。定义位置与速度的跟踪误差为
+
+本小节以上一章中由混合 A* 搜索得到的离散参考序列为目标，在预测域内约束无人机逐步逼近对应的参考状态。设预测步长为 \(H\)，第 \(t\) 步第 \(j\) 架无人机的参考位置与速度分别为 \(\mathbf{p}^{a,\mathrm{ref}}_{j,t}\in\mathbb{R}^3\)、\(\mathbf{v}^{a,\mathrm{ref}}_{j,t}\in\mathbb{R}^3\)，优化变量为 \(\mathbf{p}^a_{j,t},\mathbf{v}^a_{j,t}\)。定义跟踪误差
 \begin{equation}
-\label{eq:track_err}
 \mathbf{e}^{p}_{j,t}=\mathbf{p}^a_{j,t}-\mathbf{p}^{a,\mathrm{ref}}_{j,t},\qquad
-\mathbf{e}^{v}_{j,t}=\mathbf{v}^a_{j,t}-\mathbf{v}^{a,\mathrm{ref}}_{j,t},\qquad
-t=0,\dots,H-1,\ j=1,\dots,N_a.
+\mathbf{e}^{v}_{j,t}=\mathbf{v}^a_{j,t}-\mathbf{v}^{a,\mathrm{ref}}_{j,t},
+\qquad t=1,\dots,H-1,\ j=1,\dots,N_a,
 \end{equation}
-由于 \(t=0\) 时刻的状态由当前观测固定，不作为决策变量参与优化，因此从 \(t=1\) 步开始施加引导路点跟踪代价。设统一权重为 \(\lambda_{\mathrm{wp}}>0\)，在末时刻 \(t=H-1\) 通过倍数 \(\kappa_{\mathrm{tail}}\ge 1\) 强化到达要求，则整个预测域上的引导路点跟踪代价写为
+其中 \(t=0\) 时刻的状态由当前观测给定，不作为决策变量参与优化。
+
+为在预测域内部保持轨迹整体贴合参考路径，并在末端适当强化到达要求，引入统一权重 \(\lambda_{\mathrm{wp}}>0\) 以及末端放大系数 \(\kappa_{\mathrm{tail}}\ge 1\)，定义
 \begin{equation}
-\label{eq:J_wp}
+\kappa_t=
+\begin{cases}
+1,& t=1,\dots,H-2,\\[2pt]
+\kappa_{\mathrm{tail}},& t=H-1,
+\end{cases}
+\end{equation}
+则引导路点跟踪代价写为
+\begin{equation}
 J_{\mathrm{wp}}
-=\lambda_{\mathrm{wp}}\!\left[
-\sum_{t=1}^{H-2}\sum_{j=1}^{N_a}\Big(\|\mathbf{e}^{p}_{j,t}\|_2^2+\|\mathbf{e}^{v}_{j,t}\|_2^2\Big)
-+\ \kappa_{\mathrm{tail}}\sum_{j=1}^{N_a}\Big(\|\mathbf{e}^{p}_{j,H-1}\|_2^2+\|\mathbf{e}^{v}_{j,H-1}\|_2^2\Big)
-\right].
+=\lambda_{\mathrm{wp}}\sum_{t=1}^{H-1}\sum_{j=1}^{N_a}
+\kappa_t\Big(\|\mathbf{e}^{p}_{j,t}\|_2^2+\|\mathbf{e}^{v}_{j,t}\|_2^2\Big).
+\label{eq:J_wp_simplified}
 \end{equation}
-可以看出，\(\lambda_{\mathrm{wp}}\) 控制整体的引导强度，\(\kappa_{\mathrm{tail}}\) 用于在预测域末端进一步压缩末状态与参考状态之间的偏差，从而在不施加硬终端约束的前提下保证“按时到达”。
+其中 \(\lambda_{\mathrm{wp}}\) 控制整体引导强度，\(\kappa_{\mathrm{tail}}\) 在不施加硬终端约束的前提下强化预测域末端的到达精度。
 
-式~\eqref{eq:J_wp} 对决策变量的梯度具有简单的闭式形式，便于在求解器中使用。对中间时刻 \(t=1,\dots,H-2\) 有
+该代价项对决策变量的梯度具有简单的闭式形式，对任意 \(t=1,\dots,H-1\)、\(j=1,\dots,N_a\) 有
 \begin{equation}
-\label{eq:grad_wp_mid}
 \frac{\partial J_{\mathrm{wp}}}{\partial \mathbf{p}^a_{j,t}}
-=2\,\lambda_{\mathrm{wp}}\big(\mathbf{p}^a_{j,t}-\mathbf{p}^{a,\mathrm{ref}}_{j,t}\big),\qquad
+=2\,\lambda_{\mathrm{wp}}\kappa_t\big(\mathbf{p}^a_{j,t}-\mathbf{p}^{a,\mathrm{ref}}_{j,t}\big),\qquad
 \frac{\partial J_{\mathrm{wp}}}{\partial \mathbf{v}^a_{j,t}}
-=2\,\lambda_{\mathrm{wp}}\big(\mathbf{v}^a_{j,t}-\mathbf{v}^{a,\mathrm{ref}}_{j,t}\big),
-\end{equation}
-对末时刻 \(t=H-1\) 则为
-\begin{equation}
-\label{eq:grad_wp_tail}
-\frac{\partial J_{\mathrm{wp}}}{\partial \mathbf{p}^a_{j,H-1}}
-=2\,\lambda_{\mathrm{wp}}\,\kappa_{\mathrm{tail}}\big(\mathbf{p}^a_{j,H-1}-\mathbf{p}^{a,\mathrm{ref}}_{j,H-1}\big),\qquad
-\frac{\partial J_{\mathrm{wp}}}{\partial \mathbf{v}^a_{j,H-1}}
-=2\,\lambda_{\mathrm{wp}}\,\kappa_{\mathrm{tail}}\big(\mathbf{v}^a_{j,H-1}-\mathbf{v}^{a,\mathrm{ref}}_{j,H-1}\big).
+=2\,\lambda_{\mathrm{wp}}\kappa_t\big(\mathbf{v}^a_{j,t}-\mathbf{v}^{a,\mathrm{ref}}_{j,t}\big).
+\label{eq:grad_J_wp_simplified}
 \end{equation}
 
-上述设计在整个预测域内对每一时刻的引导路点跟踪给予相同量级的权重，从而避免轨迹在时间窗口内部出现明显漂移；仅在末端通过 \(\kappa_{\mathrm{tail}}\) 进行额外放大，使无人机在预测域尾部更紧密地贴合混合 A* 给出的参考路径。结合滚动时域执行策略，当前窗口末端的强化约束同时也为下一窗口提供了良好的初始状态，从而改善整体轨迹的一致性与求解器的收敛稳定性。
+通过上述设计，预测域内部各时刻均受到一致量级的引导约束，仅在末端通过 \(\kappa_t\) 进行适度加权。结合滚动时域执行策略，当前窗口末端的强化跟踪既提高了局部预测的一致性，也为下一窗口提供了更接近参考路径的初始状态，从而有利于整体求解过程的稳定收敛。
 
-\subsection{序列可视空间约束构建}
 
-本小节利用之前构建的序列可视空间，将时序化的可视性信息显式写入全局协同优化。在每一预测时刻 \(t_k\)，可视空间 \(S(t_k)\) 刻画了以该时刻 UAV 参考位姿为中心、且对其具有良好视距条件的一片星凸区域。若某辆 UGV 的位置落在该区域外侧并留有一定裕度，则认为可视性良好；反之，当接近或穿越可视边界时，应在代价函数中给予惩罚以推动系统恢复可见状态。
+\subsection{空地系统间可视约束构建}
 
-对第 \(k\) 个时刻的可视空间 \(S(t_k)\)，其翻转空间中的凸多面体采用与\autoref{eq:polytope_H} 相同的 \(H\)-表示形式。记该多面体由 \(K\) 个面构成，第 \(i\) 个面的外法向为 \(n^{(k)}_i\in\mathbb{R}^3\)，面上一点为 \(a^{(k)}_i\in\mathbb{R}^3\)，则对任意翻转点 \(\hat{x}\) 有
+本节将\autoref{sec:vs+kino}构建的序列可视空间 \(\mathrm{SSCP}=[S_1,\dots,S_H]\) 加入全局协同优化。对每一预测时刻 \(k\)，可视空间 \(S_k\) 由以引导路径采样点 \(c_k\) 为中心的星凸可视区域刻画，表示在该时刻 UAV 与 UGV 之间应保持“视距良好、无遮挡”的空间范围。若某辆 UGV 位置远离可视边界且留有足够裕度，则不额外施加约束；当其逐渐逼近甚至穿越边界时，通过代价项对该状态进行惩罚，从而驱动系统回到可视区域内部。
+
+具体实现上，对第 \(k\) 个时刻的可视空间 \(S_k\)，仍采用上一小节中基于球翻转变换 \(F(\cdot)\) 和凸多面体 \(H\)-表示得到的光滑可视性函数 \(\Xi(\hat{x})\)、违背量 \(\phi(x\mid S_k)\) 与单点代价
 \begin{equation}
-\label{eq:sscp_face_dist}
-d^{(k)}_i(\hat{x})=n^{(k)\top}_i\big(\hat{x}-a^{(k)}_i\big),\qquad i=1,\ldots,K.
+V_{\mathrm{scp}}(x\mid S_k)=
+\begin{cases}
+0,& \phi(x\mid S_k)\le 0,\\[3pt]
+\lambda_{\mathrm{scp}}\ \phi(x\mid S_k)^{3},& \phi(x\mid S_k)>0,
+\end{cases}
+\label{eq:sscp_Vscp}
 \end{equation}
-其对应的最大有符号距离为
-\begin{equation}
-\label{eq:sscp_dmax}
-d_{\max}^{(k)}(\hat{x})=\max_{i=1,\ldots,K}d^{(k)}_i(\hat{x}).
-\end{equation}
-实际实现时，为获得平滑且可导的代价，本章采用\autoref{eq:lse_def} 所给出的形式对 \(\max\) 运算进行光滑近似。为书写简洁，以下仍以 \(d_{\max}^{(k)}(\hat{x})\) 表示该“最大外侧距离”的光滑近似值。
+其中 \(\phi(\cdot)\) 与 \(\Xi(\cdot)\) 的定义分别见式~\eqref{eq:violation} 与式~\eqref{eq:lse_def}，\(\lambda_{\mathrm{scp}}>0\) 为单个可视空间的权重。
 
-设第 \(i\) 辆 UGV 在时刻 \(t_k\) 的位置为 \(\mathbf{p}^{g}_{i,k}\in\mathbb{R}^3\)，其翻转点为
+设第 \(i\) 辆 UGV 在时刻 \(k\) 的位置为 \(\mathbf{p}^{g}_{i,k}\in\mathbb{R}^3\)，则在整个预测域上，序列可视空间的总可视性代价写为
 \begin{equation}
-\hat{\mathbf{p}}^{\,g}_{i,k}=F\big(\mathbf{p}^{g}_{i,k}\big),
-\end{equation}
-其中 \(F(\cdot)\) 为\autoref{eq:ball_flip} 所定义的球翻转映射。给定可视安全裕度 \(d_{\min}>0\)，定义单点可视性代价为
-\begin{equation}
-\label{eq:sscp_point_cost}
-V\!\big(\hat{\mathbf{p}}^{\,g}_{i,k}\mid S(t_k)\big)
-=\Big[d_{\min}-d_{\max}^{(k)}\!\big(\hat{\mathbf{p}}^{\,g}_{i,k}\big)\Big]_+^{\,3},\qquad [z]_+=\max(z,0).
-\end{equation}
-当 \(\mathbf{p}^{g}_{i,k}\) 落在可视空间外部且距离边界不小于 \(d_{\min}\) 时，\(d_{\max}^{(k)}\) 足够大，有 \(d_{\min}-d_{\max}^{(k)}\le 0\)，此时代价为零，不对该时刻的可视性施加额外约束；当 UGV 靠近可视边界甚至穿越边界时，\(d_{\max}^{(k)}\) 减小，使得括号内取正值，代价按三次多项式快速增长，从而在优化中产生明显的“推回”趋势。
-
-在整个预测域上，对所有 UGV 与全部时刻的单点代价进行加权累加，得到序列可视空间上的可视性代价
-\begin{equation}
-\label{eq:sscp_Jvis}
 J_{\mathrm{vis}}
 =\lambda_{\mathrm{vis}}\sum_{k=1}^{H-1}\sum_{i=1}^{N_g}
-V\!\big(\hat{\mathbf{p}}^{\,g}_{i,k}\mid S(t_k)\big),
+V_{\mathrm{scp}}\big(\mathbf{p}^{g}_{i,k}\mid S_k\big),
+\label{eq:sscp_Jvis}
 \end{equation}
-其中 \(N_g\) 为 UGV 数量，\(\lambda_{\mathrm{vis}}>0\) 为可视性代价的权重系数。
+其中 \(N_g\) 为 UGV 数量，\(\lambda_{\mathrm{vis}}>0\) 为当前代价的权重。当 \(\mathbf{p}^{g}_{i,k}\) 位于可视区域内部并留有不少于 \(d_{\min}\) 的裕度时，\(\phi(\mathbf{p}^{g}_{i,k}\mid S_k)\le 0\)，对应项代价为零；当其靠近或越过可视边界时，\(\phi>0\)，代价以三次多项式迅速增长，从而在优化中产生明显的“推回”作用。
+
+同时给出该代价梯度表达。根据上一小节的推导，单点代价在可视空间上的梯度为
+\begin{equation}
+\nabla_x V_{\mathrm{scp}}(x\mid S_k)=
+\begin{cases}
+\mathbf{0},& \phi(x\mid S_k)\le 0,\\[6pt]
+-\,3\,\lambda_{\mathrm{scp}}\ \phi(x\mid S_k)^{2}\ J_F(x)^\top\,\bar{n}\big(F(x)\big),& \phi(x\mid S_k)>0,
+\end{cases}
+\label{eq:sscp_grad_Vscp}
+\end{equation}
+其中 \(J_F(x)\) 为球翻转映射 \(F(\cdot)\) 的雅可比矩阵（见式~\eqref{eq:Jflip}），\(\bar{n}(\cdot)\) 为基于各面外法向的软最大加权法向量（见式~\eqref{eq:softmax_w}–\eqref{eq:grad_xi_hat}）。
+
+据此，序列可视空间代价对 UGV 位置的梯度可写为
+\begin{equation}
+\frac{\partial J_{\mathrm{vis}}}{\partial \mathbf{p}^{g}_{i,k}}
+=\lambda_{\mathrm{vis}}\,
+\nabla_x V_{\mathrm{scp}}(x\mid S_k)\big|_{x=\mathbf{p}^{g}_{i,k}},
+\qquad i=1,\dots,N_g,\ k=1,\dots,H-1,
+\label{eq:sscp_grad_Jvis}
+\end{equation}
+取值形式由式~\eqref{eq:sscp_grad_Vscp} 直接给出。当 \(\phi(\mathbf{p}^{g}_{i,k}\mid S_k)\le 0\) 时，对应梯度为零，不影响该时刻的搜索方向；当 \(\phi>0\) 时，梯度方向由翻转空间凸包的最大法向与球翻转雅可比共同决定，使 UGV 位置沿着最有效的“退让方向”远离视线遮挡区域，实现对时序可视性要求的可微建模。
 
 \subsection{空地队形约束构建}
 
-为提高基于 UWB 的相对定位稳定性与精度，本节在上一章空地队形约束的基础上进行优化。在每个离散时刻 \(k\)，以 UGV 的平面位置\(\{\mathbf{p}^{g}_{i,k}\in\mathbb{R}^2\}_{i=1}^{N_g}\) 为优化变量，从边长均衡、整体尺度、径向均衡以及空地距离四个方面构造复合队形损失，并通过一致的顶点排序避免随时间的标号混乱，如\autoref{fig:formation_example}所示。
+为提高基于 UWB 的相对定位稳定性与精度，本节在\autoref{sec:formation_constraint1} 的基础上，对地面编队的几何结构进行细化建模。在每个离散时刻 \(k\)，以 UGV 的平面位置
+\(\{\mathbf{p}^{g}_{i,k}\in\mathbb{R}^2\}_{i=1}^{N_g}\) 为优化变量，通过统一的顶点排序构造边长均衡、整体尺度、径向均衡以及空地距离四类子代价，并给出相应的解析梯度。
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.75\linewidth]{chapter_4/formation.png}
-    \caption{队形约束构建示意图}
-    \label{fig:formation_example}
-\end{figure}
-
-首先在时刻 \(k\) 计算 UGV 多边形的质心
+首先计算 UGV 多边形的质心
 \begin{equation}
 \label{eq:formation_centroid}
 \mathbf{c}_k=\frac{1}{N_g}\sum_{i=1}^{N_g}\mathbf{p}^{g}_{i,k},
 \end{equation}
-并以 \(\mathbf{c}_k\) 为极点，计算各 UGV 的极角
+并以 \(\mathbf{c}_k\) 为极点计算各 UGV 的极角
 \begin{equation}
 \label{eq:formation_angle}
-\varphi_i=\mathrm{atan2}\!\big(p^{g}_{i,k,y}-c_{k,y},\ p^{g}_{i,k,x}-c_{k,x}\big).
+\varphi_i=\mathrm{atan2}\!\big(p^{g}_{i,k,y}-c_{k,y},\;p^{g}_{i,k,x}-c_{k,x}\big).
 \end{equation}
-按 \(\varphi_i\) 升序得到顶点序列 \((v_0,v_1,\dots,v_{N_g-1})\)，据此定义有向边 \((v_i,v_{i+1\bmod N_g})\)。该基于质心的极角排序在 UGV 发生交叉换位时仍能保持边的拓扑顺序一致，避免在后续边长与径向代价中出现“错边配点”的问题。
+按 \(\varphi_i\) 升序得到顶点序列 \((v_0,\dots,v_{N_g-1})\)，并令边 \((v_i,v_{i+1\bmod N_g})\) 构成时刻 \(k\) 的多边形边集。该极角排序在车辆发生交叉换位时仍能保持拓扑一致，避免“边–顶点”对应关系随时间跳变。
 
-在此基础上引入四类子代价。第一类为边长均衡项，用于促使多边形边长接近一致，从而抑制过长或过短的边带来的几何偏置。记第 \(i\) 条边的长度
+第 \(i\) 条边长度定义为
 \begin{equation}
 \label{eq:edge_length}
 d_i=\big\|\mathbf{p}^{g}_{v_{i+1},k}-\mathbf{p}^{g}_{v_i,k}\big\|_2,\qquad 
-\bar d=\frac{1}{N_g}\sum_{i=0}^{N_g-1}d_i,
+\bar d=\frac{1}{N_g}\sum_{i=0}^{N_g-1}d_i.
 \end{equation}
-则边长均衡代价定义为
+边长均衡代价写为
 \begin{equation}
 \label{eq:J_edge}
-J_{\mathrm{edge}}(k)=\lambda_{\mathrm{edge}}\sum_{i=0}^{N_g-1}\big(d_i-\bar d\big)^2,
+J_{\mathrm{edge}}(k)=\lambda_{\mathrm{edge}}\sum_{i=0}^{N_g-1}\big(d_i-\bar d\big)^2,\qquad \lambda_{\mathrm{edge}}>0.
 \end{equation}
-其中 \(\lambda_{\mathrm{edge}}>0\) 控制对形状规则性的偏好。该项在所有边长一致时取零，当某些边明显偏长或偏短时会产生二次惩罚，将多边形整体推向更接近矩形或正多边形的形状。
-
-第二类为整体尺度约束，用于限制平均边长处于期望区间，避免车距过近导致多径和安全风险，也避免过远导致测距退化。给定允许距离带 \([d_{\mathrm{low}},d_{\mathrm{high}}]\)，定义
+对每条边长有
 \begin{equation}
-\label{eq:J_mean}
-J_{\mathrm{mean}}(k)=\lambda_{\mathrm{mean}}\Big(\,[d_{\mathrm{low}}-\bar d]_+^{\,2}+[\,\bar d-d_{\mathrm{high}}]_+^{\,2}\Big),
-\qquad [z]_+=\max(z,0),
+\label{eq:J_edge_dk}
+\frac{\partial J_{\mathrm{edge}}(k)}{\partial d_i}
+=2\,\lambda_{\mathrm{edge}}\big(d_i-\bar d\big),
 \end{equation}
-其中 \(\lambda_{\mathrm{mean}}>0\) 为尺度权重。当 \(\bar d\) 处于可行带内部时该项为零；一旦整体编队被“压缩”或“拉伸”超出期望范围，代价按与带边界差值的平方增长，从而在保持一定机动自由度的同时限制整体尺度漂移。对各边长度 \(d_i\) 的偏导数可按
-\begin{equation}
-\label{eq:J_mean_dk}
-\frac{\partial J_{\mathrm{mean}}}{\partial d_i}=\frac{\lambda_{\mathrm{mean}}}{N_g}
-\begin{cases}
--2\,(d_{\mathrm{low}}-\bar d),& \bar d<d_{\mathrm{low}},\\
-\ \ 2\,(\bar d-d_{\mathrm{high}}),& \bar d>d_{\mathrm{high}},\\
-\ \ 0,& \text{otherwise},
-\end{cases}
-\end{equation}
-再结合
+且
 \begin{equation}
 \label{eq:edge_dpos}
 \frac{\partial d_i}{\partial \mathbf{p}^{g}_{v_i,k}}=-\,\frac{\mathbf{p}^{g}_{v_{i+1},k}-\mathbf{p}^{g}_{v_i,k}}{d_i},\qquad
-\frac{\partial d_i}{\partial \mathbf{p}^{g}_{v_{i+1},k}}=\ \ \frac{\mathbf{p}^{g}_{v_{i+1},k}-\mathbf{p}^{g}_{v_i,k}}{d_i},
+\frac{\partial d_i}{\partial \mathbf{p}^{g}_{v_{i+1},k}}=\ \ \frac{\mathbf{p}^{g}_{v_{i+1},k}-\mathbf{p}^{g}_{v_i,k}}{d_i}.
 \end{equation}
-即可通过链式法则得到对各顶点位置的梯度。
+由链式法则可得，对任一顶点 \(v_i\)（下标按模 \(N_g\)）的梯度为
+\begin{equation}
+\label{eq:J_edge_grad_pos}
+\frac{\partial J_{\mathrm{edge}}(k)}{\partial \mathbf{p}^{g}_{v_i,k}}
+=2\,\lambda_{\mathrm{edge}}\!\left[
+\big(d_{i-1}-\bar d\big)\frac{\mathbf{p}^{g}_{v_i,k}-\mathbf{p}^{g}_{v_{i-1},k}}{d_{i-1}}
++\big(d_i-\bar d\big)\frac{\mathbf{p}^{g}_{v_i,k}-\mathbf{p}^{g}_{v_{i+1},k}}{d_i}
+\right].
+\end{equation}
 
-第三类为径向均衡项，用于抑制“边长合适但个别点半径过大或过小”的退化配置，使各 UGV 相对质心的分布更为均匀。令
+整体尺度约束通过平均边长 \(\bar d\) 被限制在期望带 \([d_{\mathrm{low}},d_{\mathrm{high}}]\) 内。尺度代价定义为
+\begin{equation}
+\label{eq:J_mean}
+J_{\mathrm{mean}}(k)
+=\lambda_{\mathrm{mean}}\Big(\,[d_{\mathrm{low}}-\bar d]_+^{\,2}+[\,\bar d-d_{\mathrm{high}}]_+^{\,2}\Big),
+\qquad [z]_+=\max(z,0),\ \lambda_{\mathrm{mean}}>0.
+\end{equation}
+对 \(\bar d\) 有
+\begin{equation}
+\label{eq:J_mean_dbard}
+\frac{\partial J_{\mathrm{mean}}(k)}{\partial \bar d}=
+\begin{cases}
+-2\,\lambda_{\mathrm{mean}}\big(d_{\mathrm{low}}-\bar d\big),& \bar d<d_{\mathrm{low}},\\[2pt]
+\ \ 2\,\lambda_{\mathrm{mean}}\big(\bar d-d_{\mathrm{high}}\big),& \bar d>d_{\mathrm{high}},\\[2pt]
+\ \ 0,& \text{otherwise},
+\end{cases}
+\end{equation}
+又因为 \(\bar d=(1/N_g)\sum_i d_i\)，得到
+\begin{equation}
+\label{eq:J_mean_dk}
+\frac{\partial J_{\mathrm{mean}}(k)}{\partial d_i}
+=\frac{1}{N_g}\,\frac{\partial J_{\mathrm{mean}}(k)}{\partial \bar d}.
+\end{equation}
+结合\eqref{eq:edge_dpos}，对顶点位置的梯度为
+\begin{equation}
+\label{eq:J_mean_grad_pos}
+\frac{\partial J_{\mathrm{mean}}(k)}{\partial \mathbf{p}^{g}_{v_i,k}}
+=\sum_{e\in\{i-1,i\}}\frac{\partial J_{\mathrm{mean}}(k)}{\partial d_e}
+\frac{\partial d_e}{\partial \mathbf{p}^{g}_{v_i,k}}.
+\end{equation}
+
+为抑制“边长合适但局部压缩或拉伸”的退化形状，引入径向均衡成本。令
 \begin{equation}
 \label{eq:radial_def}
 r_i=\big\|\mathbf{p}^{g}_{v_i,k}-\mathbf{c}_k\big\|_2,\qquad 
 \bar r=\frac{1}{N_g}\sum_{i=0}^{N_g-1}r_i,
 \end{equation}
-则径向方差代价为
+径向代价定义为
 \begin{equation}
 \label{eq:J_radial}
-J_{\mathrm{rad}}(k)=\lambda_{\mathrm{rad}}\sum_{i=0}^{N_g-1}\big(r_i-\bar r\big)^2,
+J_{\mathrm{rad}}(k)=\lambda_{\mathrm{rad}}\sum_{i=0}^{N_g-1}\big(r_i-\bar r\big)^2,\qquad \lambda_{\mathrm{rad}}>0.
 \end{equation}
-其中 \(\lambda_{\mathrm{rad}}>0\) 控制对“环状展开”程度的约束。该项在所有 UGV 到质心距离接近时趋于零，当某些车辆距离质心明显偏离整体平均时会产生惩罚，有利于避免极度扁长或一侧塌缩的几何形状。其梯度可通过 \(r_i\) 对 \(\mathbf{p}^{g}_{v_i,k}\) 的导数按链式法则直接写出，这里不再展开。
+对 \(r_i\) 有
+\begin{equation}
+\label{eq:J_radial_dri}
+\frac{\partial J_{\mathrm{rad}}(k)}{\partial r_i}
+=2\,\lambda_{\mathrm{rad}}\big(r_i-\bar r\big).
+\end{equation}
 
-第四类为空地距离项，用于约束 UAV 与各 UGV 之间的空间距离不过度增大，以保障 UWB 测距链路与空地协同观测质量。设 UAV 数量为 \(N_a\)，在时刻 \(k\) 的三维位置为 \(\{\mathbf{p}^{a}_{j,k}\in\mathbb{R}^3\}_{j=1}^{N_a}\)。将 UGV 的平面坐标嵌入三维并与地面高度对齐，记
+注意 \(\mathbf{c}_k=(1/N_g)\sum_{\ell} \mathbf{p}^{g}_{v_\ell,k}\)，定义
+\(
+\mathbf{q}_i=\mathbf{p}^{g}_{v_i,k}-\mathbf{c}_k
+\)，则 \(r_i=\|\mathbf{q}_i\|_2\)。由于质心对每个顶点的贡献相同，\(r_i\) 对各顶点位置的偏导可以写成两种情况：
+\begin{equation}
+\label{eq:dr_i_dpos}
+\frac{\partial r_i}{\partial \mathbf{p}^{g}_{v_\ell,k}}=
+\begin{cases}
+\dfrac{\mathbf{q}_i}{r_i}\Big(1-\dfrac{1}{N_g}\Big), & \ell=i,\\[6pt]
+-\dfrac{\mathbf{q}_i}{r_i}\,\dfrac{1}{N_g}, & \ell\neq i.
+\end{cases}
+\end{equation}
+
+将 \eqref{eq:J_radial_dri} 与 \eqref{eq:dr_i_dpos} 代入链式法则，对任一顶点 \(v_\ell\) 有
+\begin{equation}
+\label{eq:J_radial_grad_pos}
+\frac{\partial J_{\mathrm{rad}}(k)}{\partial \mathbf{p}^{g}_{v_\ell,k}}
+=\sum_{i=0}^{N_g-1}\frac{\partial J_{\mathrm{rad}}(k)}{\partial r_i}
+\frac{\partial r_i}{\partial \mathbf{p}^{g}_{v_\ell,k}}
+=2\,\lambda_{\mathrm{rad}}\left[
+\big(r_\ell-\bar r\big)\frac{\mathbf{q}_\ell}{r_\ell}\Big(1-\frac{1}{N_g}\Big)
+-\frac{1}{N_g}\sum_{\substack{i=0\\ i\neq \ell}}^{N_g-1}
+\big(r_i-\bar r\big)\frac{\mathbf{q}_i}{r_i}
+\right].
+\end{equation}
+
+为空地协同与 UWB 量测留出足够重叠区域，引入 UAV–UGV 距离约束。设时刻 \(k\) 有 \(N_a\) 架 UAV，位置为 \(\{\mathbf{p}^{a}_{j,k}\in\mathbb{R}^3\}_{j=1}^{N_a}\)。将 UGV 平面位置嵌入三维并与地面高度对齐，记
 \begin{equation}
 \label{eq:bdry_dist}
 d_{ij}=\big\|\mathbf{p}^{a}_{j,k}-[\mathbf{p}^{g}_{i,k};0]\big\|_2,
 \end{equation}
-其中 \([\cdot;0]\) 表示在 \(z\) 轴上补零。给定最大期望量程 \(d_{\mathrm{range}}>0\)，定义
+给定最大期望量程 \(d_{\mathrm{range}}>0\)，空地距离代价为
 \begin{equation}
 \label{eq:J_bdry}
-J_{\mathrm{bd}}(k)=\lambda_{\mathrm{bd}}\sum_{i=1}^{N_g}\sum_{j=1}^{N_a}\,[\,d_{ij}-d_{\mathrm{range}}\,]_+^{\,2},
+J_{\mathrm{bd}}(k)
+=\lambda_{\mathrm{bd}}\sum_{i=1}^{N_g}\sum_{j=1}^{N_a}\,[\,d_{ij}-d_{\mathrm{range}}\,]_+^{\,2},
+\qquad \lambda_{\mathrm{bd}}>0.
 \end{equation}
-其中 \(\lambda_{\mathrm{bd}}>0\) 为空地距离项的权重。当 UAV 长时间远离某些 UGV 超出期望量程时，该项会对 \(\mathbf{p}^{a}_{j,k}\) 和 \(\mathbf{p}^{g}_{i,k}\) 产生将其相互拉近的梯度，从而鼓励编队保持一定的空地耦合强度。对应的偏导数可按
+当 \(d_{ij}\le d_{\mathrm{range}}\) 时对应项梯度为零；当 \(d_{ij}>d_{\mathrm{range}}\) 时有
 \begin{equation}
 \label{eq:J_bdry_grad}
-\frac{\partial J_{\mathrm{bd}}}{\partial \mathbf{p}^{a}_{j,k}}=
-2\,\lambda_{\mathrm{bd}}\,(d_{ij}-d_{\mathrm{range}})\,\frac{\mathbf{p}^{a}_{j,k}-[\mathbf{p}^{g}_{i,k};0]}{d_{ij}},\qquad
-\frac{\partial J_{\mathrm{bd}}}{\partial \mathbf{p}^{g}_{i,k}}= -\Big(\frac{\partial J_{\mathrm{bd}}}{\partial \mathbf{p}^{a}_{j,k}}\Big)_{xy},
+\frac{\partial J_{\mathrm{bd}}(k)}{\partial \mathbf{p}^{a}_{j,k}}
+=2\,\lambda_{\mathrm{bd}}\,(d_{ij}-d_{\mathrm{range}})\,
+\frac{\mathbf{p}^{a}_{j,k}-[\mathbf{p}^{g}_{i,k};0]}{d_{ij}},
 \end{equation}
-对所有 \((i,j)\) 满足 \(d_{ij}>d_{\mathrm{range}}\) 的对组合累加即可得到完整梯度。
+\begin{equation}
+\label{eq:J_bdry_grad_g}
+\frac{\partial J_{\mathrm{bd}}(k)}{\partial \mathbf{p}^{g}_{i,k}}
+=-\Big(\frac{\partial J_{\mathrm{bd}}(k)}{\partial \mathbf{p}^{a}_{j,k}}\Big)_{xy},
+\end{equation}
+对所有满足 \(d_{ij}>d_{\mathrm{range}}\) 的 \((i,j)\) 将\eqref{eq:J_bdry_grad}–\eqref{eq:J_bdry_grad_g} 累加，即可得到对各 UAV、UGV 位置的总梯度贡献。
 
 将上述四类子代价在时域上求和，得到空地队形总损失
 \begin{equation}
 \label{eq:J_form_total}
-J_{\mathrm{form}}=\sum_{k=0}^{H-1}\Big(J_{\mathrm{edge}}(k)+J_{\mathrm{mean}}(k)+J_{\mathrm{rad}}(k)+J_{\mathrm{bd}}(k)\Big),
+J_{\mathrm{form}}
+=\sum_{k=0}^{H-1}\Big(
+J_{\mathrm{edge}}(k)
++J_{\mathrm{mean}}(k)
++J_{\mathrm{rad}}(k)
++J_{\mathrm{bd}}(k)
+\Big),
 \end{equation}
-其中 \(\lambda_{\mathrm{edge}},\lambda_{\mathrm{mean}},\lambda_{\mathrm{rad}},\lambda_{\mathrm{bd}}>0\) 为各子项权重。由于每一项均由欧氏距离与二次函数等基础运算组成，其关于 \(\mathbf{p}^{g}_{i,k}\) 与 \(\mathbf{p}^{a}_{j,k}\) 的梯度都可以按\autoref{eq:J_edge}–\autoref{eq:J_bdry_grad} 中的解析表达式直接求得，并线性叠加构成 \(\partial J_{\mathrm{form}}/\partial (\cdot)\)。通过边长均衡、整体尺度、径向均衡与空地距离四个层面的约束，UGV 编队在全局优化中能够保持近似矩形且尺度合理的拓扑结构，同时与 UAV 维持合适的空间距离，从而为 UWB 相对定位与空地协同感知提供更加稳定、可观的几何布局。
+其中 \(\lambda_{\mathrm{edge}},\lambda_{\mathrm{mean}},\lambda_{\mathrm{rad}},\lambda_{\mathrm{bd}}>0\) 为可调权重。利用\eqref{eq:J_edge_grad_pos}、\eqref{eq:J_mean_grad_pos}、\eqref{eq:J_radial_grad_pos} 与\eqref{eq:J_bdry_grad}–\eqref{eq:J_bdry_grad_g} 给出的解析梯度，可以在每个时间步上高效计算 \(J_{\mathrm{form}}\) 对所有 \(\mathbf{p}^{g}_{i,k}\)、\(\mathbf{p}^{a}_{j,k}\) 的偏导。通过边长均衡、整体尺度、径向均衡与空地距离四个层面的约束，UGV 编队在全局层面保持近似规则且尺度合理的拓扑结构，同时与 UAV 维持合适的空间距离，为 UWB 相对定位与空地协同感知提供稳定的几何条件。
 
 \subsection{优化问题建模与求解}\label{sec:opt_que}
 
-本节在预测域长度 \(H\) 和步长 \(\Delta t\) 下，对 UAV 与 UGV 统一建模并构建面向全局协同规划的非线性优化问题。每个机器人 \(i\) 在离散时刻 \(k\) 的决策变量为位置、速度与加速度
+本节在预测域长度 \(H\) 和步长 \(\Delta t\) 下，对 UAV 与 UGV 统一建模并构建全局协同规划优化问题。对任一机器人 \(i\)，在离散时刻 \(k\) 的决策变量为
 \begin{equation}
 \label{eq:state_stack_final}
-\mathbf{x}_{i,k}=\begin{bmatrix}\mathbf{p}_{i,k}\\[2pt] \mathbf{v}_{i,k}\\[2pt] \mathbf{a}_{i,k}\end{bmatrix},\qquad
+\mathbf{x}_{i,k}=
+\begin{bmatrix}
+\mathbf{p}_{i,k}\\[2pt]
+\mathbf{v}_{i,k}\\[2pt]
+\mathbf{a}_{i,k}
+\end{bmatrix},\qquad
 \mathbf{p}_{i,k},\mathbf{v}_{i,k},\mathbf{a}_{i,k}\in\mathbb{R}^{d_i},\ d_i\in\{2,3\},
 \end{equation}
-其中 \(d_i=3\) 对应 UAV，\(d_i=2\) 对应在平面上运动的 UGV。加速度 \(\mathbf{a}_{i,k}\) 在全局层面同时扮演控制输入的角色，后续局部轨迹生成模块在此基础上进行连续时间参数化。为保持与前文建模一致，状态在离散时间上满足二阶积分形式
+其中 \(d_i=3\) 对应 UAV，\(d_i=2\) 对应 UGV。全局阶段直接以加速度 \(\mathbf{a}_{i,k}\) 作为控制量，后续局部规划对其进行连续时间参数化。离散动力学采用统一二阶积分模型
 \begin{equation}
 \label{eq:disc_dyn_final}
 \mathbf{p}_{i,k+1}=\mathbf{p}_{i,k}+\Delta t\,\mathbf{v}_{i,k}+\tfrac{1}{2}\Delta t^2\,\mathbf{a}_{i,k},\qquad
 \mathbf{v}_{i,k+1}=\mathbf{v}_{i,k}+\Delta t\,\mathbf{a}_{i,k},
 \end{equation}
-初始条件由当前状态估计给出
+初始条件由当前状态估计给定
 \begin{equation}
 \label{eq:init_cond_final}
-\mathbf{p}_{i,0}=\mathbf{p}^{\mathrm{init}}_{i},\qquad \mathbf{v}_{i,0}=\mathbf{v}^{\mathrm{init}}_{i},
+\mathbf{p}_{i,0}=\mathbf{p}^{\mathrm{init}}_{i},\qquad
+\mathbf{v}_{i,0}=\mathbf{v}^{\mathrm{init}}_{i},
 \end{equation}
-并在实现中通过直接赋值固定，不作为优化变量参与求解。上述抽象在保持 UAV 微分平坦可跟踪性和 UGV 平面全向可执行性的前提下，使不同平台共享统一的变量结构，便于在同一优化框架内叠加引导、可视、队形与能量等多种代价。
+在实现中通过直接赋值固定，不作为优化变量参与求解。
 
-为将动力学约束和速度／加速度上下限约束纳入无约束求解框架，采用平方惩罚的方式将其转化为损失项并加入总目标函数。这样可以避免显式构造大规模等式与不等式约束集合，便于配合拟牛顿方向进行迭代求解，同时在有良好热启动的前提下将搜索过程限制在近似动态可行的邻域。
-
-首先考虑动力学一致性。对每个机器人 \(i\) 和每个 \(k\ge 1\)，定义相邻时刻的动力学“缺陷”
+为避免显式构造大规模等式／不等式约束，本章将动力学一致性与速度／加速度上下限均转化为惩罚项加入目标函数。对每个 \(i\) 和 \(k\ge 1\)，定义离散动力学误差
 \begin{equation}
 \label{eq:dyn_defects_final}
 \mathbf{c}^{(1)}_{i,k}=\mathbf{p}_{i,k}-\mathbf{p}_{i,k-1}-\Delta t\,\mathbf{v}_{i,k-1},\qquad
 \mathbf{c}^{(2)}_{i,k}=\mathbf{v}_{i,k}-\mathbf{v}_{i,k-1}-\Delta t\,\mathbf{a}_{i,k-1},
 \end{equation}
-并采用二次惩罚
+并构造二次惩罚
 \begin{equation}
 \label{eq:J_dyn_final}
-J_{\mathrm{dyn}}=\lambda_{\mathrm{dyn}}\sum_{k=1}^{H-1}\sum_{i}\Big(\|\mathbf{c}^{(1)}_{i,k}\|_2^2+\|\mathbf{c}^{(2)}_{i,k}\|_2^2\Big),
+J_{\mathrm{dyn}}
+=\lambda_{\mathrm{dyn}}\sum_{k=1}^{H-1}\sum_{i}
+\Big(\|\mathbf{c}^{(1)}_{i,k}\|_2^2+\|\mathbf{c}^{(2)}_{i,k}\|_2^2\Big),
+\qquad \lambda_{\mathrm{dyn}}>0.
 \end{equation}
-其中 \(\lambda_{\mathrm{dyn}}>0\) 控制动力学一致性的严格程度。当轨迹严格满足\autoref{eq:disc_dyn_final} 时，\(\mathbf{c}^{(1)}_{i,k}\) 与 \(\mathbf{c}^{(2)}_{i,k}\) 等于零，\(J_{\mathrm{dyn}}\) 消失；在数值求解中，通过逐步减小缺陷可将解推向动态可行区域。
+当轨迹严格满足\eqref{eq:disc_dyn_final} 时，\(J_{\mathrm{dyn}}=0\)；在数值求解中，通过逐步减小缺陷把解推向动态可行区域。
 
-然后处理速度与加速度的上下限。对每个机器人给定最大速度 \(v_{\max,i}>0\) 和最大加速度 \(a_{\max,i}>0\)，对任意 \((i,k)\) 定义分段平方惩罚
+速度与加速度限幅采用分段惩罚实现。设机器人 \(i\) 的最大速度与最大加速度分别为 \(v_{\max,i}>0\)、\(a_{\max,i}>0\)，对任意标量 \(n\) 定义
 \begin{equation}
 \label{eq:rho_funcs}
-\rho_v(n;v_{\max,i})=\begin{cases}
+\rho_v(n;v_{\max,i})=
+\begin{cases}
 \big(\tfrac{n}{v_{\max,i}}-1\big)^2,& n>v_{\max,i},\\[3pt]
 0,& n\le v_{\max,i},
 \end{cases}
 \qquad
-\rho_a(n;a_{\max,i})=\begin{cases}
+\rho_a(n;a_{\max,i})=
+\begin{cases}
 \big(\tfrac{n}{a_{\max,i}}-1\big)^2,& n>a_{\max,i},\\[3pt]
 0,& n\le a_{\max,i},
 \end{cases}
 \end{equation}
-由此得到上下限损失
+得到上下限损失
 \begin{equation}
 \label{eq:J_limit_final}
-J_{\mathrm{lim}}=\lambda_{\mathrm{lim}}\sum_{k=0}^{H-1}\sum_{i}\Big[
-\rho_v\big(\|\mathbf{v}_{i,k}\|_2;v_{\max,i}\big)+
-\rho_a\big(\|\mathbf{a}_{i,k}\|_2;a_{\max,i}\big)\Big],
+J_{\mathrm{lim}}
+=\lambda_{\mathrm{lim}}\sum_{k=0}^{H-1}\sum_{i}\Big[
+\rho_v\big(\|\mathbf{v}_{i,k}\|_2;v_{\max,i}\big)
++\rho_a\big(\|\mathbf{a}_{i,k}\|_2;a_{\max,i}\big)\Big],
+\qquad \lambda_{\mathrm{lim}}>0.
 \end{equation}
-其中 \(\lambda_{\mathrm{lim}}>0\) 为对应权重。当速度与加速度范数处于物理上限之内时该项为零，一旦超过上限则按相对超限比例的平方进行惩罚，从而在保持一定机动裕度的同时限制极端加减速行为。
+当速度／加速度范数不超过物理上限时 \(\rho_v,\rho_a\) 为零，一旦超限则按相对超限比例的平方增长，从而在不引入硬约束的前提下限制极端机动。
 
-控制能量与轨迹平滑性通过加速度能量和相邻步加速度差的平方进行正则化，这与前一章控制正则项的设计保持一致。定义
+为抑制能量消耗和控制抖动，定义加速度正则项
 \begin{equation}
 \label{eq:J_ctrl_final}
-J_{\mathrm{ctrl}}=\lambda_{\mathrm{ctrl}}\sum_{k=0}^{H-1}\sum_{i}\|\mathbf{a}_{i,k}\|_2^{2}
+J_{\mathrm{ctrl}}
+=\lambda_{\mathrm{ctrl}}\sum_{k=0}^{H-1}\sum_{i}\|\mathbf{a}_{i,k}\|_2^{2}
 +\lambda_{\Delta u}\sum_{k=0}^{H-2}\sum_{i}\|\mathbf{a}_{i,k+1}-\mathbf{a}_{i,k}\|_2^{2},
 \end{equation}
-其中第一项抑制整体控制能量，第二项抑制加速度在时间上的剧烈变化，\(\lambda_{\Delta u}>0\) 为平滑权重。对应的全局权重 \(\lambda_{\mathrm{ctrl}}\) 在实验部分与前一章保持一致，用于调节控制正则在总目标中的相对重要性。
+其中第一项惩罚整体控制能量，第二项惩罚相邻时刻加速度差，\(\lambda_{\mathrm{ctrl}},\lambda_{\Delta u}>0\) 为相应权重。
 
-在此基础上，前文已经分别给出了无人机引导路点代价 \(J_{\mathrm{wp}}\)、序列可视空间代价 \(J_{\mathrm{vis}}\) 和无人车队形代价 \(J_{\mathrm{form}}\)。综合上述各项，本章全局协同规划阶段的目标函数写为
+在此基础上，本章已分别给出无人机引导路点代价 \(J_{\mathrm{wp}}\)、序列可视空间代价 \(J_{\mathrm{vis}}\) 与队形代价 \(J_{\mathrm{form}}\)。综合各项，全局协同规划阶段的目标函数为
 \begin{equation}
 \label{eq:J_total_final}
-\min_{\{\mathbf{p}_{i,k},\mathbf{v}_{i,k},\mathbf{a}_{i,k}\}}~
-J=J_{\mathrm{wp}}+J_{\mathrm{vis}}+J_{\mathrm{form}}
-+J_{\mathrm{ctrl}}+J_{\mathrm{dyn}}+J_{\mathrm{lim}},
+\min_{\{\mathbf{p}_{i,k},\mathbf{v}_{i,k},\mathbf{a}_{i,k}\}}~J
+=J_{\mathrm{wp}}+J_{\mathrm{vis}}+J_{\mathrm{form}}
++J_{\mathrm{ctrl}}+J_{\mathrm{dyn}}+J_{\mathrm{lim}}.
 \end{equation}
-其中 \(J_{\mathrm{wp}}\) 推动 UAV 渐近跟踪混合 A* 引导路点，\(J_{\mathrm{vis}}\) 通过 SSCP 在时间序列上保持空地可视性，\(J_{\mathrm{form}}\) 维持空地队形的形状与尺度，\(J_{\mathrm{ctrl}}\) 抑制能量与抖动，\(J_{\mathrm{dyn}}\) 和 \(J_{\mathrm{lim}}\) 将动态一致性与物理上下限以惩罚形式嵌入统一优化框架，使总代价在符号和含义上与前一章保持一致。
+其中 \(J_{\mathrm{wp}}\) 使 UAV 渐近跟踪混合 A* 引导路点，\(J_{\mathrm{vis}}\) 通过 SSCP 在时间序列上保持空地可视性，\(J_{\mathrm{form}}\) 维持地面队形与空地距离，\(J_{\mathrm{ctrl}}\) 抑制控制能量和抖动，\(J_{\mathrm{dyn}}\) 与 \(J_{\mathrm{lim}}\) 则以惩罚形式实现动力学一致性与物理限幅。
 
-求解方面，考虑到预测域内状态与控制变量随机器人数量线性增长，而动力学一致性在时间上耦合、可视性和队形代价在同一时刻跨机器人耦合，直接构造大规模稀疏 KKT 系统进行二阶内点法求解会带来较高的实现与计算开销。为此，本章在实现中采用开源的 L\text{-}BFGS 方法\cite{LBFGS-Lite}。该方法通过保留有限条历史 \((s_\ell,y_\ell)\) 向量对构造近似逆 Hessian，在每一步利用两层循环公式计算搜索方向，并结合满足强 Wolfe 条件的线搜索确定步长，在平滑目标上具有较好的收敛效率和较低的内存占用。依托前文给出的各损失项解析梯度，能够在每个滚动周期内高效构建目标与梯度，并完成若干步迭代收敛到局部极小。
+求解方面，考虑到预测域内状态与控制变量随机器人数量线性增长、动力学在时间维度上耦合、可视与队形代价在同一时刻跨机器人耦合，本章采用基于梯度的拟牛顿方法求解器 L\text{-}BFGS\cite{LBFGS-Lite}。该方法在每步迭代中利用有限条历史 \((s_\ell,y_\ell)\) 向量对构造近似逆 Hessian，通过两层循环公式计算搜索方向，并结合满足强 Wolfe 条件的线搜索确定步长；依托前文给出的各损失项解析梯度，可以在每个滚动周期内高效构建 \(J\) 及其梯度，实现全局阶段的实时协同优化。
 
 \section{局部跟踪避障轨迹生成} \label{sec:local-tracking}
-本节在全局离散规划结果的基础上开展局部连续轨迹生成与优化。首先，将带时间戳的全局离散路径点按照其时间顺序初始化为本地多项式轨迹，采用 MINCO 形式\cite{wang2022geometrically}以同时满足位姿与导数的连续性，并将每一个全局路径点的时间标签保留用于后续时间对齐。随后，在该本地轨迹上引入避障与跟踪等目标进行连续优化：避障项采用基于碰撞段、锚点与排斥方向估计的力场方法，对处于障碍物内部或接近障碍边界的轨迹片段，沿由锚点指示的无碰撞方向对轨迹关键变量施加排斥代价与梯度，从而在不依赖全局 ESDF 的条件下高效剔除碰撞\cite{zhou2021egoplanner} 。在此基础上，增加路径点同步约束：对每一个全局时间戳 \(t_k\)，在待优化的本地轨迹上取同一时刻的点 \(\mathbf{r}(t_k)\)，并将 \(\|\mathbf{r}(t_k)-\mathbf{w}_k\|_2^2\) 的平方偏差作为跟踪损失加入整体目标，使局部解在时空上严格贴合全局离散解。最后，叠加速度与加速度的上下限惩罚以及能量与平滑项，形成面向实时执行的局部轨迹优化问题。
+本节在前述全局规划结果的基础上，构建用于执行层的局部连续轨迹。首先，将带时间戳的全局路径点按时间顺序初始化为 MINCO 形式的多段多项式轨迹\cite{wang2022geometrically}，同时保留每个路径点的时间标签，用于局部优化中的时间对齐。然后在该轨迹上叠加避障与跟踪目标：避障部分采用基于排斥方向估计的力场方法\cite{zhou2021egoplanner}，对落入障碍内部或靠近障碍边界的轨迹片段，沿锚点给出的无碰撞方向施加排斥损失与梯度，实现高效避障；跟踪部分在每个全局时间戳 \(t_k\) 处约束局部轨迹点 \(\mathbf{r}(t_k)\) 与参考点 \(\mathbf{w}_k\) 的偏差，保证局部解在时空上紧跟全局规划的结果。最后，叠加速度与加速度上下限惩罚以及能量与平滑项，形成面向实时执行的局部轨迹优化问题。
 
 \subsection{局部轨迹避障方法}
 
-本小节在本地 MINCO 轨迹上直接构建可微的避障代价。\autoref{fig:local_avoid} 给出了基于 \(\{\mathbf{p},\mathbf{v}\}\) 对的几何直观：首先在障碍物内部或邻近处选取碰撞采样点及其切向速度，由此在障碍物表面上寻找局部无碰撞路径，再根据得到的推出方向对轨迹施加排斥力场，使最终轨迹被“推”出障碍物外侧。
+本小节在局部 MINCO 轨迹上直接构建可微的避障代价。\autoref{fig:local_avoid} 给出了基于 \(\{\mathbf{p},\mathbf{v}\}\) 对的几何直观：在轨迹上选取一系列采样点及其切向速度，在障碍物表面上寻找局部锚点与推出方向，并沿该方向对轨迹施加排斥力，使轨迹逐步“推”离障碍物内部或邻近区域。
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.7\linewidth]{chapter_4/local_avoidance_method.jpg}
+    \includegraphics[width=0.65\linewidth]{chapter_4/local_avoidance_method.jpg}
     \caption{基于 \(\{\mathbf{p},\mathbf{v}\}\) 对的局部避障方法示意图\cite{egoswarm2021}}
     \label{fig:local_avoid}
 \end{figure}
@@ -2459,26 +2542,24 @@ J=J_{\mathrm{wp}}+J_{\mathrm{vis}}+J_{\mathrm{form}}
 \mathbf{v}(t)=\dot{\mathbf{p}}(t),\qquad 
 t\in[t_0,t_M],\ \ t_M-t_0=\textstyle\sum_{m=1}^{M}T_m .
 \end{equation}
-为将连续时间代价离散化，在区间 \([t_0,t_M]\) 上等间隔采样
-\(t_i=t_0+i\,\Delta t_s\)（\(i=0,\dots,K\)），并令时间权重 \(w_i=\Delta t_s\)。
+在区间 \([t_0,t_M]\) 上等间隔采样 \(t_i=t_0+i\,\Delta t_s\)（\(i=0,\dots,K\)），并令时间权重 \(w_i=\Delta t_s\)。
 
-在每个采样时刻，利用轨迹的切向方向与障碍边界构造一组局部锚点与排斥方向。记
-\(\mathbf{Q}_i=\mathbf{p}(t_i)\) 为第 \(i\) 个采样点，
-\(\mathbf{R}_i=\mathbf{v}(t_i)/\|\mathbf{v}(t_i)\|_2\) 为单位切向，在
-\(\mathbf{Q}_i\) 处建立切片平面
+在第 \(i\) 个采样时刻，记
+\(\mathbf{Q}_i=\mathbf{p}(t_i)\) 为采样位置，
+\(\mathbf{R}_i=\mathbf{v}(t_i)/\|\mathbf{v}(t_i)\|_2\) 为单位切向方向，在 \(\mathbf{Q}_i\) 处建立切片平面
 \begin{equation}
 \label{eq:slice_plane_all}
 \Psi_i=\Big\{\mathbf{x}\in\mathbb{R}^3\ \big|\ (\mathbf{x}-\mathbf{Q}_i)^\top \mathbf{R}_i=0\Big\}.
 \end{equation}
-将 \(\Psi_i\) 与障碍边界 \(\Gamma\) 相交得到若干线段，将 \(\mathbf{Q}_i\) 正交投影到每条线段并取最近点作为候选锚点 \(\mathbf{p}_{ij}\)。对每个候选构造归一化方向
+将 \(\Psi_i\) 与障碍边界 \(\Gamma\) 相交得到若干线段，将 \(\mathbf{Q}_i\) 正交投影到每条线段并取最近点作为候选锚点 \(\mathbf{p}_{ij}\)，其归一化方向为
 \begin{equation}
 \label{eq:pair_dir_all}
-\tilde{\mathbf{v}}_{ij}=\frac{\mathbf{p}_{ij}-\mathbf{Q}_i}{\|\mathbf{p}_{ij}-\mathbf{Q}_i\|_2},
+\tilde{\mathbf{v}}_{ij}=\frac{\mathbf{p}_{ij}-\mathbf{Q}_i}{\|\mathbf{p}_{ij}-\mathbf{Q}_i\|_2}.
 \end{equation}
-再通过一次占据检查将方向修正为指向自由空间的一侧：若
+通过一次占据检查将方向修正为指向自由空间：若
 \(\mathbf{p}_{ij}+\varepsilon\,\tilde{\mathbf{v}}_{ij}\)（\(\varepsilon>0\) 很小）仍在障碍内部，则置 \(\mathbf{v}_{ij}=-\tilde{\mathbf{v}}_{ij}\)，否则置 \(\mathbf{v}_{ij}=\tilde{\mathbf{v}}_{ij}\)。这样，每一对 \(\{\mathbf{p}_{ij},\mathbf{v}_{ij}\}\) 都定义了一张通过 \(\mathbf{p}_{ij}\)、法向为 \(\mathbf{v}_{ij}\) 的局部“零距离平面”。
 
-相对于第 \(j\) 个候选对，采样点 \(\mathbf{Q}_i\) 的有符号距离写为
+相对于第 \(j\) 个候选对，采样点 \(\mathbf{Q}_i\) 的有符号距离为
 \begin{equation}
 \label{eq:pair_dist_all}
 d_{ij}=\big(\mathbf{Q}_i-\mathbf{p}_{ij}\big)^\top \mathbf{v}_{ij}.
@@ -2489,9 +2570,9 @@ d_{ij}=\big(\mathbf{Q}_i-\mathbf{p}_{ij}\big)^\top \mathbf{v}_{ij}.
 d_i=\min_{j} d_{ij},\qquad 
 \mathbf{n}_i=\mathbf{v}_{i j^\star},\quad j^\star=\arg\min_{j} d_{ij},
 \end{equation}
-即可得到与当前环境最一致的推出方向 \(\mathbf{n}_i\) 及最近距离 \(d_i\)。\autoref{fig:local_avoid} 中的 \(\Gamma\)、\(\mathbf{p}\) 与 \(\mathbf{v}\) 分别对应障碍物边界、锚点与排斥方向的几何示意。
+得到与当前环境最一致的推出方向 \(\mathbf{n}_i\) 及最近距离 \(d_i\)。
 
-给定几何安全裕度 \(C_o>0\)，在 \(d_i<C_o\) 时认定轨迹与障碍过近，并施加三次距离惩罚，沿时间累加得到避障代价
+给定几何安全裕度 \(C_o>0\)，在 \(d_i<C_o\) 时认为轨迹与障碍过近，并施加三次距离惩罚，沿时间累加得到避障代价
 \begin{equation}
 \label{eq:Jo_all}
 J_{o}=\lambda_{o}\sum_{i=0}^{K} w_i\,\big(C_o-d_i\big)_{+}^{3},\qquad [x]_+=\max(x,0),\ \ \lambda_o>0,
@@ -2510,7 +2591,7 @@ J_{o}=\lambda_{o}\sum_{i=0}^{K} w_i\,\big(C_o-d_i\big)_{+}^{3},\qquad [x]_+=\max
 =\sum_{i=0}^{K}\!\Big(\frac{\partial \mathbf{p}(t_i)}{\partial \mathbf{T}}\Big)^{\!\top}\frac{\partial J_o}{\partial \mathbf{p}(t_i)}.
 \end{equation}
 
-上述构造在每个采样时刻仅激活一对 \(\{\mathbf{p}_{ij},\mathbf{v}_{ij}\}\)，计算与存储开销与候选数线性相关；通过方向校正保证排斥力始终指向障碍外部；三次惩罚在边界处导数连续，有利于与 MINCO 轨迹的可导表示一同集成进局部轨迹优化问题，实现高效、光滑的避障调整。
+该方法在每个采样时刻仅激活一对 \(\{\mathbf{p}_{ij},\mathbf{v}_{ij}\}\)，计算与存储开销与候选数线性相关；方向校正保证排斥力始终指向障碍外部，三次惩罚在边界处一阶导数连续，便于与 MINCO 可导表示一起加入局部轨迹优化问题，实现高效、光滑的避障调整。
 
 \subsection{路径点同步跟踪约束构建}
 
@@ -2620,11 +2701,11 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
 \(J_t\) 的梯度为常数向量，
 \(J_d\) 的梯度由式~\eqref{eq:Jd_grad_y} 在三阶导数上类推得到。
 
-求解采用 L\text{-}BFGS，在仅依赖一阶信息的前提下利用有限内存的拟牛顿近似与 Wolfe 线搜索对光滑目标实现快速收敛，计算与存储开销随采样数线性增长，且便于从上一周期解热启动。优化得到的 MINCO 轨迹按时间持续输出 \(\mathbf{p}(t),\mathbf{v}(t),\mathbf{a}(t)\) 给各机器人控制器：对无人机，通过微分平坦映射将 \(\{\mathbf{p},\dot{\mathbf{p}},\ddot{\mathbf{p}}\}\) 转为推力与角速度参考；对无人车，直接作为平面速度与加速度参考，从而获得平滑、可行且能量友好的局部跟踪轨迹。
+同样采用 L\text{-}BFGS求解器求解，利用有限内存的拟牛顿近似与 Wolfe 线搜索对光滑目标实现快速收敛。优化得到的 MINCO 轨迹按时间持续输出 \(\mathbf{p}(t),\mathbf{v}(t),\mathbf{a}(t)\) 给各机器人控制器：对无人机，通过微分平坦映射将 \(\{\mathbf{p},\dot{\mathbf{p}},\ddot{\mathbf{p}}\}\) 转为推力与角速度参考；对无人车，直接作为平面速度与加速度参考，从而获得平滑、可行且耗能少的局部跟踪轨迹。
 
 \section{两阶段协同规划方法架构设计} \label{sec:two-stage-arch}
 
-本节从系统角度梳理全局规划与局部规划之间的分工与数据流。整体架构如图~\ref{fig:two_stage_arch} 所示，系统在外环执行基于序列可视空间的全局协同规划，在内环执行基于 MINCO 的局部轨迹优化，两者通过带时间戳的参考序列进行耦合，实现“全局可视一致性 + 本地连续可执行”的协同。
+本节从系统角度梳理全局规划与局部规划之间的分工。整体架构如图~\ref{fig:two_stage_arch} 所示，系统在外环执行基于序列可视空间的全局协同规划，在内环执行基于 MINCO 的局部轨迹优化，两者通过带时间戳的参考序列进行连接，实现两阶段的协同优化。
 
 \begin{figure}[htbp]
     \centering
@@ -2633,31 +2714,25 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
     \label{fig:two_stage_arch}
 \end{figure}
 
-在全局阶段，首先由定位与感知模块融合 UAV 与多辆 UGV 的位姿信息，构建共享占据栅格地图。以当前 UAV 位置为起点、任务目标为终点，基于混合 A* 生成满足动力学约束的全局引导路径及其时间参数化。沿该引导路径按固定时间步长采样，并在每个采样点附近构建可视空间，进而形成时序化的序列可视空间（SSCP）。在\autoref{sec:sscp-global} 中给出的建模基础上，外环在预测域长度 \(H_g\) 内，对所有机器人在每个离散时刻的状态 \(\{\mathbf{p}_{i,k},\mathbf{v}_{i,k},\mathbf{a}_{i,k}\}\) 求解全局优化问题 \eqref{eq:J_total_final}，综合考虑无人机引导路点跟踪 \(J_{\mathrm{wp}}\)、序列可视性代价 \(J_{\mathrm{vis}}\)、地面队形代价 \(J_{\mathrm{form}}\) 以及能量、动力学与上下限惩罚等项，得到未来一段时间的离散参考轨迹：
-\[
-\mathcal{W}^{(r)}_k=\Big\{\big(\mathbf{p}^{\mathrm{ref}(r)}_{k,s},\ \mathbf{v}^{\mathrm{ref}(r)}_{k,s},\ \tau_{k,s}\big)\ \big|\ s=0,\dots,H_g-1\Big\},
-\]
-其中 \(r\) 为机器人索引，\(\tau_{k,s}=t_k+s\Delta t_g\) 为显式时间戳。该集合是外环对内环的输出接口。
+在全局阶段，首先由定位与感知模块融合 UAV 与多辆 UGV 的位姿信息，构建共享占据栅格地图。以当前 UAV 位置为起点、任务目标为终点，基于混合 A* 生成满足动力学约束的全局引导路径及其时间参数化。沿该引导路径按固定时间步长采样，并在每个采样点附近构建可视空间，进而形成时序化的序列可视空间。在\autoref{sec:sscp-global} 中给出的建模基础上，外环在预测域长度 \(H_g\) 内，对所有机器人在每个离散时刻的状态 \(\{\mathbf{p}_{i,k},\mathbf{v}_{i,k},\mathbf{a}_{i,k}\}\) 求解全局优化问题 \eqref{eq:J_total_final}，综合考虑无人机引导路点跟踪 \(J_{\mathrm{wp}}\)、序列可视性代价 \(J_{\mathrm{vis}}\)、地面队形代价 \(J_{\mathrm{form}}\) 以及能量、动力学与上下限惩罚等项，得到未来一段时间的离散参考轨迹\(\mathcal{W}^{(r)}_k\)。在局部阶段，每个机器人独立运行局部轨迹优化器。对于第 \(r\) 个机器人，收到其对应的参考序列 \(\mathcal{W}^{(r)}_k\) 后，在离散参考轨迹所覆盖的时间区间上构建 MINCO 轨迹
+\(\mathbf{p}^{(r)}(t)=\mathcal{M}(\mathbf{q}^{(r)},\mathbf{T}^{(r)};t)\)，并按照\autoref{sec:local-tracking} 中的建模建立局部目标函数，并使用 L\text{-}BFGS 结合显式梯度进行求解，得到连续时间的最优轨迹 \(\mathbf{p}^{(r)}(t),\dot{\mathbf{p}}^{(r)}(t),\ddot{\mathbf{p}}^{(r)}(t)\)。求解得到的局部轨迹会在执行层被实时采样并转化为控制指令。
 
-在局部阶段，每个机器人独立运行局部轨迹优化器。对于第 \(r\) 个机器人，收到其对应的参考序列 \(\mathcal{W}^{(r)}_k\) 后，在时间区间 \([t_k,\ t_k+T_\ell]\) 上构建 MINCO 轨迹
-\(\mathbf{p}^{(r)}(t)=\mathcal{M}(\mathbf{q}^{(r)},\mathbf{T}^{(r)};t)\)，并按照\autoref{sec:local-tracking} 中的建模建立局部目标函数：路径点同步项 \(J_{\mathrm{sync}}^{(r)}\) 在各时间戳 \(\tau_{k,s}\) 处强制对齐全局参考点，可微避障项 \(J_{o}^{(r)}\) 由局部 \(\{\mathbf{p},\mathbf{v}\}\) 对与零距离平面构造，高阶导平滑度 \(J_{s}^{(r)}\)、总时长 \(J_{t}^{(r)}\) 与动态可行性项 \(J_{d}^{(r)}\) 则约束能量与物理边界，并使用 L\text{-}BFGS 结合显式梯度进行求解，得到连续时间的最优轨迹 \(\mathbf{p}^{(r)}(t),\dot{\mathbf{p}}^{(r)}(t),\ddot{\mathbf{p}}^{(r)}(t)\)。
-
-求解得到的局部轨迹会在执行层被实时采样并转化为控制指令：对 UAV，将轨迹通过微分平坦映射生成推力与角速度参考；对 UGV 直接使用平面速度与加速度参考驱动底层控制器。外环以较低频率运行，主要负责全局可视性与队形结构的一致性；内环以较高频率运行，重点保证连续轨迹的动态可行性与局部避障。通过时间戳同步与滚动时域更新，外环每次优化覆盖至少一个内环预测区间，实现全局与局部的稳定衔接，进而在复杂未知环境下兼顾全局协同、可视保持与实时安全执行。
+外环以较低频率运行，主要负责全局可视性与队形结构的一致性；内环以较高频率运行，保证连续轨迹的动态可行性与局部避障。通过时间戳同步与滚动时域更新，外环每次优化覆盖至少一个内环预测区间，实现全局与局部的稳定衔接，进而在复杂未知环境下兼顾全局协同、可视保持与实时安全执行。
 
 \section{实验验证} \label{sec:experiments}
 
 \subsection{实验设置}
 
-本章通过仿真与实物实验对所提出的两阶段协同规划方法进行验证。仿真实验环境与上一章相同，构造稀疏与稠密两类障碍场景，用于考察在同一飞行任务下，不同约束配置对空地系统平均可视率、地面队形几何偏差、任务成功率以及整体轨迹长度等指标的影响。实物实验在约 $12\times16\times3\,\mathrm{m}^3$ 的室内场地中进行，场景包含一组固定障碍布置，障碍物之间的平均间距约为 $1.5\,\mathrm{m}$，任务目标点设置在 $(15,0)\,\mathrm{m}$ ，到达任务点后返回原点，视作任务完成，用于验证算法在真实传感噪声和通信延迟下的可行性与鲁棒性。
+本章通过仿真与实物实验对所提出的两阶段协同规划方法进行验证。仿真实验环境与\autoref{sec:gazebo_env_setting}中的设置相同，构造稀疏与稠密两类障碍场景进行实验，以验证本章提出的两阶段协同规划方法的有效性与鲁棒性。仿真时各机器人的位姿均采用Gazebo中提供的真值，以突出规划方法本身的性能表现，所有的计算都在一台电脑上完成。全局协同规划周期为 $2\,\mathrm{s}$，负责更新全局参考路径与序列可视空间；局部轨迹优化周期为 $0.5\,\mathrm{s}$，负责将全局离散参考转化为可执行的连续轨迹。底层运动控制频率为$100\,\mathrm{Hz}$，高于局部规划频率。
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.65\linewidth]{chapter_4/realworld_ugvuav.png}
+    \includegraphics[width=0.6\linewidth]{chapter_4/realworld_ugvuav.png}
     \caption{实物实验机器人平台}
     \label{fig:real_expr_uav_ugv}
 \end{figure}
 
-实物实验平台由一架自组装小型四旋翼无人机（UAV）和四辆麦克纳姆轮无人车（UGV）组成，如\autoref{fig:real_expr_uav_ugv} 所示。UAV 搭载 UWB 标签与机载计算机（Nvidia Jetson Orin），用于接收 UGV 上 UWB 锚点的测距信息并完成相对定位，同时进行本地规划；UGV 搭载 Livox MID-360 激光雷达、UWB 基站以及机载计算机（Nvidia Jetson Orin），负责环境建图与本地规划。空地系统整体定位与地图构建采用第二章中的 UWB–LiDAR 融合方法，实现空地系统间的统一坐标系与相对位姿估计。全局协同规划在一台本地笔记本电脑上运行，规划周期为 $2\,\mathrm{s}$，负责更新全局参考路径与序列可视空间；局部轨迹优化在各机器人板载计算机上独立运行，周期为 $0.5\,\mathrm{s}$，负责将全局离散参考转化为可执行的连续轨迹。底层运动控制频率为$100\,\mathrm{Hz}$，高于局部规划频率，由各平台的底层控制器根据轨迹插值得到期望状态。
+实物实验在约 $12\times16\times3\,\mathrm{m}^3$ 的室内场地中进行，场景包含一组固定障碍布置，障碍物之间的平均间距约为 $1.5\,\mathrm{m}$，任务目标点设置在 $(15,0)\,\mathrm{m}$ ，到达任务点后返回原点，视作任务完成，用于验证算法在真实传感噪声和通信延迟下的可行性与鲁棒性。实物实验平台由一架自组装小型四旋翼无人机（UAV）和四辆麦克纳姆轮无人车（UGV）组成，如\autoref{fig:real_expr_uav_ugv} 所示。UAV 搭载 UWB 标签与机载计算机（Nvidia Jetson Orin），用于接收 UGV 上 UWB 锚点的测距信息并完成相对定位，同时进行本地规划；UGV 搭载 Livox MID-360 激光雷达、UWB 基站以及机载计算机（Nvidia Jetson Orin），负责环境建图与本地规划。空地系统整体定位与地图构建采用\autoref{sec:UWB_loc_method} 中的协同定位方法，实现空地系统间的统一坐标系与相对位姿估计。实物实验时，全局协同规划在一台与空地系统网络连接的本地笔记本电脑上运行，局部轨迹优化在各机器人板载计算机上独立运行，规划频率与仿真实验一致。
 
 协同优化采用 L\text{-}BFGS 作为求解器，其主要参数设置如表~\ref{tab:lbfgs_param} 所示；全局协同规划与局部轨迹优化中各子目标的权重分别见表~\ref{tab:global_weights} 和表~\ref{tab:local_weights}，仿真与真实实验的参数设置保持一致。
 
@@ -2719,16 +2794,16 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
 
 \subsection{仿真实验}
 
-本节在与上一章相同的随机矩形障碍栅格环境中，构造稀疏与稠密两种障碍密度，并在每种环境下分别开启与关闭序列可视空间代价 \(J_{\mathrm{vis}}\)（即 SSCP 约束），共得到四组对比场景。四组实验均采用一架 UAV 与四辆 UGV，从相同起点出发，执行相同的导航任务，使用本章的两阶段方法在仿真环境中运行的过程如\autoref{fig:sim_expr_gazebo} 所示。其中图a展示了Gazebo的仿真环境，图b为对应的 RViz 显示界面，包含 3D 占据栅格地图及各机器人的历史轨迹。图c为同一场景的 2D 示意图，将障碍物和机器人位置投影到了地平面上。图d中的红色轨迹展示了各机器人在当前规划时域内需跟随的优化路点序列。直线连接了无人机与各无人车，绿色连线表示相应的空地（UAV-UGV）组合处于视距内，否则显示为红色。
+本节在与之前相同的随机障碍环境中，构造稀疏与稠密两种障碍密度，并在每种环境下分别开启与关闭序列可视空间代价 \(J_{\mathrm{vis}}\)（即 SSCP 约束），共得到四组对比场景。四组实验均采用一架 UAV 与四辆 UGV，从相同起点出发，执行相同的导航任务，使用本章的两阶段方法在仿真环境中运行的过程如\autoref{fig:sim_expr_gazebo} 所示。其中图a展示了Gazebo的仿真环境，图b为对应的 RViz 显示界面，包含 3D 占据栅格地图及各机器人的历史轨迹。图c为同一场景的 2D 示意图，将障碍物和机器人位置投影到了地平面上。图d中的红色轨迹展示了各机器人在当前规划时域内需跟随的局部优化路径。直线连接了无人机与各无人车，绿色连线表示相应的空地（UAV-UGV）组合处于视距内，否则显示为红色。
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\linewidth]{chapter_4/sim_running.png}
-    \caption{仿真环境运行样例}
+    \includegraphics[width=0.75\linewidth]{chapter_4/sim_running.png}
+    \caption{仿真环境运行示意}
     \label{fig:sim_expr_gazebo}
 \end{figure}
 
-机器人在全局层面由第~\ref{sec:sscp-global} 节提出的协同优化生成离散参考，再由第~\ref{sec:local-tracking} 节的局部轨迹进行跟踪与避障。稀疏环境下的轨迹对比如 \autoref{fig:traj_sparse} 所示，稠密环境下的轨迹对比如 \autoref{fig:traj_dense} 所示。图中颜色表示速度大小，红色小方块为膨胀后的障碍物栅格。为定量评估两阶段方法的效果，使用与之前相同的四类评价指标。四组实验的统计结果汇总于 \autoref{tab:sim_metrics}。从 \autoref{fig:traj_sparse}、\autoref{fig:traj_dense} 与 \autoref{tab:sim_metrics} 可以得到以下结果。
+机器人在全局层面由第~\ref{sec:sscp-global} 节提出的协同优化生成离散参考，再由第~\ref{sec:local-tracking} 节的局部轨迹进行跟踪与避障。稀疏环境下的轨迹对比如 \autoref{fig:traj_sparse} 所示，稠密环境下的轨迹对比如 \autoref{fig:traj_dense} 所示。图中颜色表示速度大小，红色小方块为障碍物。为定量评估两阶段方法的效果，使用与之前相同的四类评价指标。四组实验的统计结果汇总于 \autoref{tab:sim_metrics}。从 \autoref{fig:traj_sparse}、\autoref{fig:traj_dense} 与 \autoref{tab:sim_metrics} 可以得到以下结果。
 
 % --- 第一组图：稀疏环境 ---
 \begin{figure}[htbp]
@@ -2778,7 +2853,7 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
     \label{fig:traj_dense}
 \end{figure}
 
-首先，在两种环境下启用 SSCP 可视性约束后，平均可视率均显著提升：稀疏环境中从 0.67 提升到 0.80，稠密环境中从 0.65 提升到 0.75；同时任务成功率分别由 40\% 与 20\% 提高到 100\% 与 80\%。对应轨迹中可以看到，启用可视性时 UAV 倾向于在 UGV 队形上方保持“伴飞”，而不再为了缩短自身路径而远离地面平台，从而减小因遮挡导致的定位退化与任务失败。
+首先，在两种环境下启用可视性约束后，平均可视率均显著提升：稀疏环境中从 0.67 提升到 0.80，稠密环境中从 0.65 提升到 0.75；同时任务成功率分别由 40\% 与 20\% 提高到 100\% 与 80\%。对应轨迹中可以看到，启用可视性时 UAV 倾向于在 UGV 队形上方保持“伴飞”，而不再为了缩短自身路径而远离地面平台，从而减小因遮挡导致的任务失败。
 
 其次，队形保持指标表明，可视性约束并未打乱 UGV 的整体几何结构，反而在稠密场景下显著抑制了退化队形。以稠密环境（\autoref{fig:traj_dense}）为例，启用 SSCP 后半径偏差由 0.546\,m 降至 0.217\,m，边长偏差由 0.950\,m 降至 0.593\,m，说明 UGV 锚点在平面上的分布更均匀，也有利于 UWB 相对定位的条件数。稀疏场景（\autoref{fig:traj_sparse}）下两种配置的边长偏差接近，但启用可视性时角度偏差显著减小，队形旋转更加平衡。
 
@@ -2801,12 +2876,12 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
     }
 \end{table}
 
-再次，从轨迹长度来看，引入可视性约束后 UAV 在稀疏场景中的路径略有增加（32.1\,m vs. 38.3\,m），在稠密场景中则明显缩短（40.4\,m vs. 53.1\,m）。这是因为在不使用 SSCP 时，全局协同优化缺乏对障碍几何与可视性的显式刻画，容易将同步路点拖拽到障碍物间隙甚至占据体素内部；局部规划器在试图同时满足这些“不可达”同步点与避障约束时，只能产生大幅绕行或陷入求解困难，导致整体路径拉长甚至任务失败。启用 SSCP 后，全局层面对 UGV 队形施加了时序化的可视空间软约束，将参考状态限制在可见且远离障碍的星凸区域内，局部规划只需在该可行通道中进行微调，从而兼顾了路径长度、可视率与收敛稳定性。
+再次，从轨迹长度来看，引入可视性约束后 UAV 在稀疏场景中的路径略有增加（32.1\,m vs. 38.3\,m），在稠密场景中则明显缩短（40.4\,m vs. 53.1\,m）。这是因为在不使用 SSCP 时，全局协同优化缺乏对障碍几何与可视性的显式表达，容易将同步路点拖拽到障碍物间隙甚至占据体素内部；局部规划器在试图同时满足这些“不可达”同步点与避障约束时，只能产生大幅绕行或陷入求解困难，导致整体路径拉长甚至任务失败。启用 SSCP 后，全局层面对 UGV 队形施加了时序化的可视空间软约束，将参考状态限制在可见且远离障碍的星凸区域内，局部规划只需在该可行通道中进行微调，从而兼顾了路径长度、可视率与收敛稳定性。
 
 综上，在稀疏与稠密两种典型场景中，所提出的两阶段协同规划框架配合 SSCP 可视性建模，可以在保持队形几何合理性的前提下显著提高空地系统的视距保持率与任务成功率，尤其在障碍物稠密、几何关系复杂的环境中优势更加明显。
 
 \subsection{实物实验}\label{sec:real-exp}
-在实验设置中所述的 $12\times16\times3\,\mathrm{m}^3$ 室内场地内，我们进行了多轮空地协同实物实验，以验证两阶段协同规划在真实传感噪声、通信时延和动力学不确定性下的有效性。场地中布置多组柱状障碍物，平均间距约为 $1.5\,\mathrm{m}$。
+在实验设置中所述的 $12\times16\times3\,\mathrm{m}^3$ 室内场地内，本文进行了多轮空地协同的实物实验，以验证两阶段协同规划在真实传感噪声、通信时延和动力学不确定性下的有效性。场地中布置多组柱状障碍物，平均间距约为 $1.5\,\mathrm{m}$。
 
 \begin{figure}[htbp]
     \centering
@@ -2822,7 +2897,7 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
 队形保持采用与仿真实验相同的指标进行评估。统计所有时间步和多轮实验数据，径向偏差、角度偏差和边长偏差的整体平均值分别为
 \(\bar e_r=0.200\,\mathrm{m}\)、\(\bar e_\varphi=8.262^\circ\) 和 \(\bar e_{\mathrm{edge}}=0.504\,\mathrm{m}\)，说明四辆 UGV 在复杂障碍环境中仍能维持较为规整的多边形队形。整组实验的任务成功率为 $80\%$，典型成功任务中 UAV 轨迹长度约为 $53.8\,\mathrm{m}$，UGV 轨迹平均长度约为 $27.7\,\mathrm{m}$，与仿真结果在量级和趋势上保持一致。
 
-此外，为验证空地协同定位性能，在每轮实验结束后，我们测量 UAV 实际着陆点与目标着陆点在地面坐标系下的误差。统计结果表明，UAV 终端定位误差在 $x$ 轴和 $y$ 轴上的平均值分别为
+此外，为验证\autoref{sec:UWB_loc_method}提出的方法在实际应用中的定位性能，在每轮实验结束后，我们测量 UAV 实际着陆点与目标着陆点在地面坐标系下的误差。统计结果表明，UAV 终端定位误差在 $x$ 轴和 $y$ 轴上的平均值分别为
 \(\bar e_x= \textbf{7.8~cm} \) 和 \(\bar e_y=\textbf{8.84~cm}\)。这表明基于动态 UWB 锚点与队形约束的定位方案在实物环境中能够稳定提供优于 $10\,\mathrm{cm}$ 的定位精度，为上层协同规划与控制提供了可靠的状态基础。
 
 \begin{figure}[htbp]
@@ -2833,15 +2908,16 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
 \end{figure}
 
 \section{本章小结} \label{sec:summary_opt2}
-本章围绕“基于序列可视空间的两阶段协同规划”展开研究，面向空地异构多机器人系统在复杂障碍环境中的长期协同导航问题，给出了从可视空间建模到全局–局部一体化规划的完整方法。
 
-首先，针对传统基于射线检测的 LoS 约束维度高、不可导的问题，本章使用基于球翻转和凸包逼近的星型凸可视空间表示方法。以混合 A* 生成的动力学可行引导路径为骨架，在每个等时采样点周围构建局部星型凸多面体，并通过对数–指数光滑近似得到可微的可视性代价及其梯度，进而在时间轴上串联形成序列可视空间（SSCP），实现了对时序可视约束的紧凑参数化表达。
+本章围绕“基于序列可视空间的两阶段协同规划”，面向空地异构多机器人在复杂障碍环境中的长期协同导航，给出了从可视空间建模到全局–局部两阶段规划的完整方案。  
 
-其次，在全局层面，基于统一的二阶积分离散动力学，对 UAV 与多辆 UGV 的位置、速度和加速度进行联合建模，引入引导路点跟踪、序列可视空间约束和 空地队形约束三类协同目标，并叠加动力学一致性、速度/加速度上下限及能量与平滑度惩罚，构建了多目标非线性优化问题。为适应长预测域与多机器人耦合，本章采用 L\text{-}BFGS 进行无约束优化，通过热启动与滚动时域执行在保证数值稳定性的同时实现了实时可解的全局协同轨迹生成。
+在可视空间建模方面，基于球翻转与凸包逼近构造星型凸可视空间：以混合 A* 生成的动力学可行引导路径为骨架，在等时采样点周围提取局部点云，经过球翻转与凸包运算得到星型凸多面体，用对数–指数函数光滑近似最大支持函数，获得可微的可视性代价及梯度，并沿时间串联形成序列可视空间（SSCP），从而以紧凑参数化方式刻画随时间演化的 LoS 约束。  
 
-再次，在局部层面，本章采用 MINCO 作为连续轨迹表示，引入基于局部切片与锚点对的可微避障代价，以及对带时间戳全局路点的同步跟踪约束，并结合最小高阶导平滑度、总时长和动态可行性惩罚，构造了一阶可导的局部轨迹优化目标。局部优化同样使用 L\text{-}BFGS 在各机器人板载执行，实现了在局部地图上的实时避障与轨迹细化。
+在全局规划层面，本章在统一二阶积分离散动力学下，对 UAV 与多辆 UGV 的位置、速度与加速度进行联合建模，引入引导路点跟踪、SSCP 可视性约束和空地队形约束，并通过惩罚形式融入动力学一致性、速度/加速度上下限及控制能量与平滑项，形成多目标非线性优化问题。求解上采用 L\text{-}BFGS 无约束优化配合滚动时域与热启动，在保证数值稳定性的同时实现了实时可解的全局协同轨迹生成。  
 
-在此基础上，本章最后给出了两阶段协同规划的体系架构：外环以较低频率运行全局协同优化，输出带时间戳的多机器人参考序列；内环以较高频率在各机器人上独立执行局部 MINCO 优化，通过时间戳对齐实现“全局可视一致性与队形协同”与“局部连续可执行与安全避障”的解耦与闭环。本章方法在仿真与实物实验中表现出较高的任务成功率、可视率和队形保持性能，充分验证了算法的可行性与有效性。
+在局部执行层面，本章采用 MINCO 作为连续轨迹表示，通过基于局部切片与锚点对的可微避障代价以及对带时间戳全局路点的同步跟踪项，并叠加高阶导平滑和时长等正则，构造了一阶可导的局部轨迹优化目标，同样使用 L\text{-}BFGS 在各机器人板载实时求解，实现对全局解的细化与局部避障。  
+
+最终，两阶段协同规划架构由外层低频全局协同优化与内层高频局部 MINCO 优化构成：外层负责沿 SSCP 保持空地可视与队形协同，输出时间标定的多机器人参考序列；内层在局部地图上执行连续避障与轨迹平滑，两者通过时间戳对齐实现解耦协同。仿真与实物实验结果表明，该框架在任务成功率、可视率和队形保持方面均取得良好效果，验证了所提方法在复杂环境中实现空地协同规划的有效性。
 
 \chapter{总结与展望}
 
