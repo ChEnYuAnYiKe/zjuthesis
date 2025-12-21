@@ -104,8 +104,8 @@
         {
             % design
             \newcommand{\TitleTypeName}{浙江大学硕士专业学位论文}
-            \newcommand{\TitleTypeNameCover}{硕士专业学位论文}
-            % \newcommand{\TitleTypeNameCover}{硕士学位论文\\[-10pt]（专业学位）}
+            % \newcommand{\TitleTypeNameCover}{硕士专业学位论文}
+            \newcommand{\TitleTypeNameCover}{硕士学位论文\\[-15pt]（专业学位）}
         }
     }
 }
