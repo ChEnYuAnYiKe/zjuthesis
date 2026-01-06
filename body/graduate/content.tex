@@ -1263,7 +1263,7 @@ h_i(\mathbf{x}_{k+1})\ \ge\ (1-\gamma)\,h_i(\mathbf{x}_k),
 \section{多目标约束的实时协同轨迹生成} \label{sec:traj_opt}
 基于前述内容，本节构建以 UAV - UGV 的协同轨迹优化框架。UAV 根据 混合 A* 给出的全局无碰撞路径，在每个规划周期选取局部引导路点，作为参考目标点；各 UGV 通过与 UAV 及彼此之间的约束实现从动协同，组成具有一定几何结构的编队。优化目标综合考虑引导路点跟踪、队形保持、空地间视线连通质量等多项优化目标，约束条件则由动力学方程、速度与加速度限幅、避障约束共同构成。整个问题在滚动时域框架下以 NMPC 形式在线求解，使系统能够在环境持续变化和任务目标更新时实现实时重规划。
 
-\subsection{无人机引导路点约束构建}
+\subsection{无人机引导路点约束构建} \label{sec:astar_wp}
 
 在复杂遮挡环境中，仅依赖连续优化容易因局部障碍结构与有限视野而陷入局部最优。为在保证可行性的同时维持全局推进方向，本节在当前三维体素占据图上先用混合（Kino-Dynamic）A* 搜索一条满足动力学与碰撞约束的离散可跟踪路径，再在每个滚动周期仅提取其中一个局部引导路点，将其作为软约束吸引无人机向前推进；随着时域滚动，引导路点沿离散路径逐步向终点移动。
 
@@ -1802,7 +1802,7 @@ p^{(r)}(t)=\alpha_0+\alpha_1 t+\alpha_2 t^2+\alpha_3 t^3+\alpha_4 t^4+\alpha_5 t
 
 \section{序列可视空间的构建方法}\label{sec:vs+kino}
 
-本节给出序列可视空间（SSCP）的构建流程。首先在共享占据栅格和统一动力学模型的基础上，利用上一章第~\ref{sec:cluster_path} 节中的混合 A* 方法，在全局地图上得到满足速度与加速度限幅的 UAV 引导路径；该路径在动力学上可跟踪。然后按与滚动预测域一致的时间间隔对引导路径进行采样，得到一系列参考位姿。围绕每个参考位姿，基于局部点云构造对应的可视空间，用于刻画该时刻 UAV 与 UGV 所应处于的“视距良好且无遮挡”的空间区域。最后按时间顺序串联各时刻的可视空间，即得到序列可视空间 $\mathrm{SSCP}$，作为全局协同优化中刻画可视性的核心表示。
+本节给出序列可视空间（SSCP）的构建流程。首先在占据栅格图和统一动力学模型的基础上，利用\autoref{sec:astar_wp}中的混合 A* 方法，在全局地图上得到满足速度与加速度限幅的 UAV 引导路径，保证该路径在动力学上可跟踪。然后按与滚动预测域一致的时间间隔对引导路径进行采样，得到一系列参考位姿。围绕每个参考位姿，基于局部点云构造对应的可视空间，用于刻画该时刻 UAV 与 UGV 所应处于的“视距良好且无遮挡”的空间区域。最后按时间顺序串联各时刻的可视空间，即得到序列可视空间 $\mathrm{SSCP}$，作为全局协同优化中刻画可视性的核心表示。
 
 \subsection{可视空间的构建}
 
@@ -1913,7 +1913,7 @@ J_F(x)=\frac{\partial F(x)}{\partial x}
 从而在给定 $\{n_k,\beta_k\}_{k=1}^{K}$、翻转半径 $r$、裕度 $d_{\min}$ 和权重 $\lambda_{\mathrm{scp}}$ 后，可以直接用于基于梯度的一阶优化算法。
 
 \subsection{基于引导路径的序列可视空间生成}
-上一章在第~\ref{sec:cluster_path} 节中基于混合 A* 在占据栅格上搜索得到从当前 UAV 位置至任务目标的三维动力学可行引导路径，记该路径的连续时间参数化为 \(\mathbf{p}_{\mathrm{ref}}(t)\)。在本章中将 \(\mathbf{p}_{\mathrm{ref}}(t)\) 视为引导路径序列，用于驱动可视空间的时序化构建，并用于可视代价的建立。
+上一章在\autoref{sec:astar_wp}中基于混合 A* 在占据栅格上搜索得到从当前 UAV 位置至任务目标的三维动力学可行引导路径，记该路径的连续时间参数化为 \(\mathbf{p}_{\mathrm{ref}}(t)\)。在本章中将 \(\mathbf{p}_{\mathrm{ref}}(t)\) 视为引导路径序列，用于驱动可视空间的时序化构建，并用于可视代价的建立。
 
 为与后续优化问题在时间上对齐，设预测步长为 \(\Delta t\)、预测长度为 \(H\)。在时间区间 \([t_1,t_H]\) 上按等间隔采样得到引导路点序列
 \begin{equation}
@@ -2276,13 +2276,7 @@ J_{\mathrm{edge}}(k)
 \end{bmatrix},\qquad
 \mathbf{p}_{i,k},\mathbf{v}_{i,k},\mathbf{a}_{i,k}\in\mathbb{R}^{d_i},\ d_i\in\{2,3\},
 \end{equation}
-其中 \(d_i=3\) 对应 UAV，\(d_i=2\) 对应 UGV。全局阶段直接以加速度 \(\mathbf{a}_{i,k}\) 作为控制量，后续局部规划对其进行连续时间参数化。离散动力学采用统一二阶积分模型
-\begin{equation}
-\label{eq:disc_dyn_final}
-\mathbf{p}_{i,k+1}=\mathbf{p}_{i,k}+\Delta t\,\mathbf{v}_{i,k}+\tfrac{1}{2}\Delta t^2\,\mathbf{a}_{i,k},\qquad
-\mathbf{v}_{i,k+1}=\mathbf{v}_{i,k}+\Delta t\,\mathbf{a}_{i,k},
-\end{equation}
-初始条件由当前状态估计给定
+其中 \(d_i=3\) 对应 UAV，\(d_i=2\) 对应 UGV。全局阶段直接以加速度 \(\mathbf{a}_{i,k}\) 作为控制量，后续局部规划对其进行连续时间参数化。离散动力学采用统一二阶积分模型。初始条件由当前状态估计给定
 \begin{equation}
 \label{eq:init_cond_final}
 \mathbf{p}_{i,0}=\mathbf{p}^{\mathrm{init}}_{i},\qquad
@@ -2304,7 +2298,7 @@ J_{\mathrm{dyn}}
 \Big(\|\mathbf{c}^{(1)}_{i,k}\|_2^2+\|\mathbf{c}^{(2)}_{i,k}\|_2^2\Big),
 \qquad \lambda_{\mathrm{dyn}}>0.
 \end{equation}
-当轨迹严格满足\eqref{eq:disc_dyn_final} 时，\(J_{\mathrm{dyn}}=0\)；在数值求解中，通过逐步减小缺陷把解推向动态可行区域。
+在数值求解中，通过逐步减小缺陷把解推向动态可行区域。
 
 速度与加速度限幅采用分段惩罚实现。设机器人 \(i\) 的最大速度与最大加速度分别为 \(v_{\max,i}>0\)、\(a_{\max,i}>0\)，对任意标量 \(n\) 定义
 \begin{equation}
@@ -2350,7 +2344,7 @@ J_{\mathrm{ctrl}}
 \end{equation}
 其中 \(J_{\mathrm{wp}}\) 使 UAV 渐近跟踪混合 A* 引导路点，\(J_{\mathrm{vis}}\) 通过 SSCP 在时间序列上保持空地可视性，\(J_{\mathrm{form}}\) 维持地面队形与空地距离，\(J_{\mathrm{ctrl}}\) 抑制控制能量和抖动，\(J_{\mathrm{dyn}}\) 与 \(J_{\mathrm{lim}}\) 则以惩罚形式实现动力学一致性与物理限幅。
 
-求解方面，考虑到预测域内状态与控制变量随机器人数量线性增长、动力学在时间维度上耦合、可视与队形代价在同一时刻跨机器人耦合，本章采用基于梯度的拟牛顿方法求解器 L\text{-}BFGS\cite{LBFGS-Lite}。该方法在每步迭代中利用有限条历史 \((s_\ell,y_\ell)\) 向量对构造近似逆 Hessian，通过两层循环公式计算搜索方向，并结合满足强 Wolfe 条件的线搜索确定步长；依托前文给出的各损失项解析梯度，可以在每个滚动周期内高效构建 \(J\) 及其梯度，实现全局阶段的实时协同优化。
+求解方面，考虑到预测域内状态与控制变量随机器人数量线性增长、动力学在时间维度上耦合、可视与队形代价在同一时刻跨机器人耦合，本章采用基于梯度的拟牛顿方法求解器 L\text{-}BFGS\cite{LBFGS-Lite}。该求解器面向大规模无约束优化问题快速求解，但需要手动提供各损失项解析梯度，可以在每个滚动周期内高效构建 \(J\) 及其梯度，实现全局阶段的实时协同优化。
 
 \section{局部跟踪避障轨迹生成} \label{sec:local-tracking}
 本节在前述全局规划结果的基础上，构建用于执行层的局部连续轨迹。首先，将带时间戳的全局路径点按时间顺序初始化为 MINCO 形式的多段多项式轨迹\cite{wang2022geometrically}，同时保留每个路径点的时间标签，用于局部优化中的时间对齐。然后在该轨迹上叠加避障与跟踪目标：避障部分采用基于排斥方向估计的力场方法\cite{zhou2021egoplanner}，对落入障碍内部或靠近障碍边界的轨迹片段，沿锚点给出的无碰撞方向施加排斥损失与梯度，实现高效避障；跟踪部分在每个全局时间戳 \(t_k\) 处约束局部轨迹点 \(\mathbf{r}(t_k)\) 与参考点 \(\mathbf{w}_k\) 的偏差，保证局部解在时空上紧跟全局规划的结果。最后，叠加速度与加速度上下限惩罚以及能量与平滑项，形成面向实时执行的局部轨迹优化问题。
@@ -2558,16 +2552,16 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
 
 本章通过仿真与实物实验对所提出的两阶段协同规划方法进行验证。仿真实验环境与\autoref{sec:gazebo_env_setting}中的设置相同，构造稀疏与稠密两类障碍场景进行实验，以验证本章提出的两阶段协同规划方法的有效性与鲁棒性。仿真时各机器人的位姿均采用Gazebo中提供的真值，以突出规划方法本身的性能表现，所有的计算都在一台电脑上完成。全局协同规划周期为 $2\,\mathrm{s}$，负责更新全局参考路径与序列可视空间；局部轨迹优化周期为 $0.5\,\mathrm{s}$，负责将全局离散参考转化为可执行的连续轨迹。底层运动控制频率为$100\,\mathrm{Hz}$，高于局部规划频率。
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.6\linewidth]{chapter_4/realworld_ugvuav.png}
-    \caption{实物实验机器人平台}
-    \label{fig:real_expr_uav_ugv}
-\end{figure}
-
-实物实验在约 $12\times16\times3\,\mathrm{m}^3$ 的室内场地中进行，场景包含一组固定障碍布置，障碍物之间的平均间距约为 $1.5\,\mathrm{m}$，任务目标点设置在 $(15,0)\,\mathrm{m}$ ，到达任务点后返回原点，视作任务完成，用于验证算法在真实传感噪声和通信延迟下的可行性与鲁棒性。实物实验平台由一架自组装小型四旋翼无人机（UAV）和四辆麦克纳姆轮无人车（UGV）组成，如\autoref{fig:real_expr_uav_ugv} 所示。UAV 搭载 UWB 标签与机载计算机（Nvidia Jetson Orin），用于接收 UGV 上 UWB 锚点的测距信息并完成相对定位，同时进行本地规划；UGV 搭载 Livox MID-360 激光雷达、UWB 基站以及机载计算机（Nvidia Jetson Orin），负责环境建图与本地规划。空地系统整体定位与地图构建采用\autoref{sec:UWB_loc_method} 中的协同定位方法，实现空地系统间的统一坐标系与相对位姿估计。实物实验时，全局协同规划在一台与空地系统网络连接的本地笔记本电脑上运行，局部轨迹优化在各机器人板载计算机上独立运行，规划频率与仿真实验一致。
+实物实验在约 $12\times16\times3\,\mathrm{m}^3$ 的室内场地中进行，场景包含一组固定障碍布置，障碍物之间的平均间距约为 $1.5\,\mathrm{m}$，任务目标点设置在 $(15,0)\,\mathrm{m}$ ，到达任务点后返回原点，视作任务完成，用于验证算法在真实传感噪声和通信延迟下的可行性与鲁棒性。实物实验平台与\autoref{sec:localization_result}中一致，由一架自组装小型四旋翼无人机（UAV）和四辆麦克纳姆轮无人车（UGV）组成。UAV 搭载 UWB 标签与机载计算机（Nvidia Jetson Orin），用于接收 UGV 上 UWB 锚点的测距信息并完成相对定位，同时进行本地规划；UGV 搭载 Livox MID-360 激光雷达、UWB 基站以及机载计算机（Nvidia Jetson Orin），负责环境建图与本地规划。空地系统整体定位与地图构建采用\autoref{sec:UWB_loc_method} 中的协同定位方法，实现空地系统间的统一坐标系与相对位姿估计。实物实验时，全局协同规划在一台与空地系统网络连接的本地笔记本电脑上运行，局部轨迹优化在各机器人板载计算机上独立运行，规划频率与仿真实验一致。
 
 \subsection{仿真实验}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.75\linewidth]{chapter_4/sim_running.png}
+    \caption{仿真环境运行示意}
+    \label{fig:sim_expr_gazebo}
+\end{figure}
 
 本节在与之前相同的随机障碍环境中，构造稀疏与稠密两种障碍密度，并在每种环境下分别开启与关闭序列可视空间代价 \(J_{\mathrm{vis}}\)（即 SSCP 约束），共得到四组对比场景。四组实验均采用一架 UAV 与四辆 UGV，从相同起点出发，执行相同的导航任务，使用本章的两阶段方法在仿真环境中运行的过程如\autoref{fig:sim_expr_gazebo} 所示。其中图a展示了Gazebo的仿真环境，图b为对应的 RViz 显示界面，包含 3D 占据栅格地图及各机器人的历史轨迹。图c为同一场景的 2D 示意图，将障碍物和机器人位置投影到了地平面上。图d中的红色轨迹展示了各机器人在当前规划时域内需跟随的局部优化路径。直线连接了无人机与各无人车，绿色连线表示相应的空地（UAV-UGV）组合处于视距内，否则显示为红色。
 
@@ -2591,7 +2585,7 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
 
 协同优化采用 L\text{-}BFGS 作为求解器，其主要参数设置如表~\ref{tab:lbfgs_param} 所示；全局协同规划与局部轨迹优化中各子目标的权重见表~\ref{tab:global_weights}，仿真与真实实验的参数设置保持一致。
 
-\begin{table}[htbp]
+\begin{table}[htb]
     \centering
     \caption{全局与局部优化问题中各子目标权重设置}
     \label{tab:global_weights}
@@ -2618,17 +2612,10 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
     \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.75\linewidth]{chapter_4/sim_running.png}
-    \caption{仿真环境运行示意}
-    \label{fig:sim_expr_gazebo}
-\end{figure}
-
 机器人在全局层面由第~\ref{sec:sscp-global} 节提出的协同优化生成离散参考，再由第~\ref{sec:local-tracking} 节的局部轨迹进行跟踪与避障。稀疏环境下的轨迹对比如 \autoref{fig:traj_sparse} 所示，稠密环境下的轨迹对比如 \autoref{fig:traj_dense} 所示。图中颜色表示速度大小，红色小方块为障碍物。为定量评估两阶段方法的效果，使用与之前相同的四类评价指标。四组实验的统计结果汇总于 \autoref{tab:sim_metrics}。从 \autoref{fig:traj_sparse}、\autoref{fig:traj_dense} 与 \autoref{tab:sim_metrics} 可以得到以下结果。
 
 % --- 第一组图：稀疏环境 ---
-\begin{figure}[htbp]
+\begin{figure}[htb]
     \centering
     % 第一张子图
     \begin{subfigure}{\textwidth}
@@ -2654,7 +2641,7 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
 首先，在两种环境下启用可视性约束后，平均可视率均显著提升：稀疏环境中从 0.67 提升到 0.80，稠密环境中从 0.65 提升到 0.75；同时任务成功率分别由 40\% 与 20\% 提高到 100\% 与 80\%。对应轨迹中可以看到，启用可视性时 UAV 倾向于在 UGV 队形上方保持“伴飞”，而不再为了缩短自身路径而远离地面平台，从而减小因遮挡导致的任务失败。
 
 % --- 第二组图：稠密环境 ---
-\begin{figure}[htbp]
+\begin{figure}[htb]
     \centering
     % 第三张子图
     \begin{subfigure}{\textwidth}
@@ -2679,7 +2666,7 @@ J_o\) 的位置梯度由局部平面法向给出并按式~\eqref{eq:chain_rule_a
 
 其次，队形保持指标表明，可视性约束并未打乱 UGV 的整体几何结构，反而在稠密场景下显著抑制了退化队形。以稠密环境（\autoref{fig:traj_dense}）为例，启用 SSCP 后半径偏差由 0.546\,m 降至 0.217\,m，边长偏差由 0.950\,m 降至 0.593\,m，说明 UGV 锚点在平面上的分布更均匀，也有利于 UWB 相对定位的条件数。稀疏场景（\autoref{fig:traj_sparse}）下两种配置的边长偏差接近，但启用可视性时角度偏差显著减小，队形旋转更加平衡。
 
-\begin{table}[htbp]
+\begin{table}[htb]
     \centering
     \caption{不同环境与是否启用可视性约束下的仿真实验统计结果}
     \label{tab:sim_metrics}
