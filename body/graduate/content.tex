@@ -1104,7 +1104,7 @@ J_{\mathrm{ctrl}}
 \big\|\mathbf{u}^{(r)}_{k+1}-\mathbf{u}^{(r)}_{k}\big\|_2^{2}.
 \label{eq:J_ctrl}
 \end{equation}
-其中，\(\lambda_{\mathrm{ctrl}}\)与\(\lambda_{\Delta u}\)分别代表控制正则项与平滑性的代价权重大小。于是本节采用的协同优化问题可抽象表示为
+其中 \(\lambda_{\mathrm{ctrl}}\)与\(\lambda_{\Delta u}\)分别代表控制正则项与平滑性的代价权重大小。于是本节采用的协同优化问题可抽象表示为
 \begin{equation}
 \min_{\{\mathbf{x}^{(r)}_k,\mathbf{u}^{(r)}_k\}}\quad
 J_{\mathrm{task}} + J_{\mathrm{ctrl}}
@@ -1230,7 +1230,7 @@ c=-\mathbf{A}^{-1}\mathbf{b}
 \lambda_1,\lambda_2>0,\ \mathbf{R}^\top\mathbf{R}=\mathbf{I},
 \label{eq:ellipse_eig}
 \end{equation}
-其中，$\lambda_1,\lambda_2$ 为 $\mathbf{A}$ 的两个特征值且均为正（对应椭圆的闭合性条件 $\mathbf{A}\succ 0$），$\mathrm{diag}(\lambda_1,\lambda_2)$ 表示以 $\lambda_1,\lambda_2$ 为对角元的对角矩阵；$\mathbf{R}\in\mathbb{R}^{2\times 2}$ 为由 $\mathbf{A}$ 的单位正交特征向量按列组成的矩阵（即旋转矩阵），满足 $\mathbf{R}^\top\mathbf{R}=\mathbf{I}$，其中 $\mathbf{I}$ 为 $2\times 2$ 单位矩阵。该分解将 $\mathbf{A}$ 在其主轴坐标系下对角化，$\mathbf{R}$ 的两列方向对应椭圆的两条主轴方向。
+其中 $\lambda_1,\lambda_2$ 为 $\mathbf{A}$ 的两个特征值且均为正（对应椭圆的闭合性条件 $\mathbf{A}\succ 0$），$\mathrm{diag}(\lambda_1,\lambda_2)$ 表示以 $\lambda_1,\lambda_2$ 为对角元的对角矩阵；$\mathbf{R}\in\mathbb{R}^{2\times 2}$ 为由 $\mathbf{A}$ 的单位正交特征向量按列组成的矩阵（即旋转矩阵），满足 $\mathbf{R}^\top\mathbf{R}=\mathbf{I}$，其中 $\mathbf{I}$ 为 $2\times 2$ 单位矩阵。该分解将 $\mathbf{A}$ 在其主轴坐标系下对角化，$\mathbf{R}$ 的两列方向对应椭圆的两条主轴方向。
 
 在主轴坐标下可将二次型化为标准式
 \begin{equation}
@@ -1430,26 +1430,26 @@ J_{\mathrm{form}}
 \end{equation}
 其中 \(\lambda_{\mathrm{dis}},\lambda_{\mathrm{shape}},\lambda_{\mathrm{bound}}>0\) 为权重。
 
-\textbf{尺度损失。} 设允许车间距离带为 \([d_{\mathrm{low}},\,d_{\mathrm{high}}]\)。定义任意两车距离
+\textbf{尺度损失：} 设允许车间距离带为 \([d_{\mathrm{low}},\,d_{\mathrm{high}}]\)。定义任意两车距离
 \[
 r_{ij}(k)=\big\|\mathbf{p}^{g_i}_k-\mathbf{p}^{g_j}_k\big\|_2,\quad i<j,
 \]
 并引入分段函数
-\[
+\begin{equation}
 \psi(r)=
 \begin{cases}
 (d_{\mathrm{low}}-r)^2, & r<d_{\mathrm{low}},\\[2pt]
 0, & d_{\mathrm{low}}\le r\le d_{\mathrm{high}},\\[2pt]
 (r-d_{\mathrm{high}})^2, & r>d_{\mathrm{high}}.
 \end{cases}
-\]
+\end{equation}
 则
 \begin{equation}
 \ell_{\mathrm{dis}}(k)=\sum_{i<j}\psi\!\big(r_{ij}(k)\big).
 \label{eq:l_dis_k}
 \end{equation}
 
-\textbf{形状损失。} 将四辆无人车的地平面投影按顺时针排序为顶点索引 \((v_0,v_1,v_2,v_3)\)。对顶点 \(v_i\) 定义
+\textbf{形状损失：} 将四辆无人车的地平面投影按顺时针排序为顶点索引 \((v_0,v_1,v_2,v_3)\)。对顶点 \(v_i\) 定义
 \[
 a_i(k)=\big\|\mathbf{p}^{g_{v_i}}_k-\mathbf{p}^{g_{v_{i^-}}}_k\big\|_2,\ 
 b_i(k)=\big\|\mathbf{p}^{g_{v_{i^+}}}_k-\mathbf{p}^{g_{v_i}}_k\big\|_2,\ 
@@ -1467,7 +1467,7 @@ c_i(k)=\big\|\mathbf{p}^{g_{v_{i^+}}}_k-\mathbf{p}^{g_{v_{i^-}}}_k\big\|_2,
 \label{eq:l_shape_k}
 \end{equation}
 
-\textbf{空地距离损失。} 设希望无人机与每辆无人车的距离不超过上界 \(d_{\mathrm{bound}}>0\)。定义
+\textbf{空地距离损失：} 设希望无人机与每辆无人车的距离不超过上界 \(d_{\mathrm{bound}}>0\)。定义
 \[
 r^{ag}_i(k)=\big\|\mathbf{p}^a_k-\mathbf{p}^{g_i}_k\big\|_2,\quad i\in\{0,1,2,3\},
 \qquad
@@ -1922,7 +1922,7 @@ J_F(x)=\frac{\partial F(x)}{\partial x}
 =J_{\mathrm{wp}}+J_{\mathrm{vis}}+J_{\mathrm{form}}
 +J_{\mathrm{ctrl}}+J_{\mathrm{dyn}}+J_{\mathrm{lim}}.
 \end{equation}
-其中，无人机引导路点代价 \(J_{\mathrm{wp}}\) 用于引导无人机沿混合 A* 的参考序列推进，序列可视空间代价 \(J_{\mathrm{vis}}\) 通过 SSCP 在时间序列上保持空地可视性，空地队形代价 \(J_{\mathrm{form}}\) 用于维持地面队形稳定与空地距离约束；三者的具体构建方法将在后续小节中详细给出。
+其中无人机引导路点代价 \(J_{\mathrm{wp}}\) 用于引导无人机沿混合 A* 的参考序列推进，序列可视空间代价 \(J_{\mathrm{vis}}\) 通过 SSCP 在时间序列上保持空地可视性，空地队形代价 \(J_{\mathrm{form}}\) 用于维持地面队形稳定与空地距离约束；三者的具体构建方法将在后续小节中详细给出。
 
 考虑到预测域内状态与控制变量随机器人数量线性增长、动力学在时间维度上耦合、可视与队形代价在同一时刻跨机器人耦合，同时 SSCP 的代价评估涉及多面体约束与光滑近似计算，本章采用基于梯度的拟牛顿求解器 L\text{-}BFGS\cite{LBFGS-Lite}。该求解器面向大规模无约束优化问题设计，因此需要将动力学一致性与速度、加速度限幅等“硬约束”转化为代价项并入目标函数；同时，为实现求解，该优化器需要显式提供各损失项的解析梯度，以便在每个滚动周期内计算目标函数值与梯度向量。
 
